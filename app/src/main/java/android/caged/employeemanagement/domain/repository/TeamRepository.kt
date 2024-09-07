@@ -1,0 +1,11 @@
+package android.caged.employeemanagement.domain.repository
+
+import android.caged.employeemanagement.domain.model.Team
+
+interface TeamRepository {
+    suspend fun insertTeam(team: Team)
+
+    suspend fun getTeamByName(teamName: String): Team?
+
+    suspend fun getTeamById(teamId: Long): Team?
+}
