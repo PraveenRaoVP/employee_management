@@ -7,4 +7,5 @@ interface CredentialsRepository {
     suspend fun getCredentials(employeeId: Long): Credentials?
     suspend fun insertCredentials(credentials: Credentials)
     suspend fun updatePassword(employeeId: Long, password: String)
+    suspend fun deleteCredentials(employeeId: Long)
 }

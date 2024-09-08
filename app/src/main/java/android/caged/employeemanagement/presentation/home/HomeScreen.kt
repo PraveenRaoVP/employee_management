@@ -25,18 +25,20 @@ fun HomeScreen(
     navigateToPopUp: (String, String) -> Unit,
     navigateTo: (String) -> Unit,
     currentUser: Employee,
-    state: HomeState
+    state: HomeState,
+    navigate: (Employee) -> Unit
 ) {
     if (currentUser.position == Position.ADMIN) {
         AdminDashboardScreen(
             employeeCount = state.employeeCount,
             teamCount = state.teamCount,
             recentEmployees = state.recentEmployees,
-            teamMap = state.teamMap
+            teamMap = state.teamMap,
+            navigate = navigate
         )
     }
     if (currentUser.position == Position.MANAGER) {
-        // TODO: Manager Screen.
+        ManagerScreen(recentEmployees = state.recentEmployees, teamMap = state.teamMap, navigate = navigate, currentUser = currentUser)
     }
 
     if (currentUser.position == Position.EMPLOYEE) {
@@ -49,7 +51,8 @@ fun AdminDashboardScreen(
     employeeCount: Int,
     teamCount: Int,
     recentEmployees: List<Employee>,
-    teamMap: Map<Long, Team>
+    teamMap: Map<Long, Team>,
+    navigate: (Employee) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -70,15 +73,47 @@ fun AdminDashboardScreen(
         Text("New Employees Joined", style = MaterialTheme.typography.titleMedium)
         Log.i("AdminDashboardScreen", "Recent Employees: $recentEmployees")
 
-        EmployeeList(employeeList = recentEmployees, teamMap = teamMap, onEmployeeClick = {})
+        EmployeeList(employeeList = recentEmployees, teamMap = teamMap, onEmployeeClick = navigate)
 
         // Optional: Add a graph to show employee count per team using a third-party library
     }
 }
 
+@Composable
+fun ManagerScreen(
+    recentEmployees: List<Employee>,
+    teamMap: Map<Long, Team>,
+    navigate: (Employee) -> Unit,
+    currentUser: Employee
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Dashboard", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            "Team: ${teamMap[currentUser.teamID]?.teamName}",
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("New Employees Joined", style = MaterialTheme.typography.titleMedium)
+        Log.i("Manager", "Recent Employees: $recentEmployees")
+
+        EmployeeList(employeeList = recentEmployees, teamMap = teamMap, onEmployeeClick = navigate)
+    }
+}
+
 
 @Composable
-private fun EmployeeHomeScreen(
+fun EmployeeHomeScreen(
     currentUser: Employee,
     navigateTo: (String) -> Unit
 ) {

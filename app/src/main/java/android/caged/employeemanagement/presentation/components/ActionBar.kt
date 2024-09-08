@@ -38,7 +38,7 @@ fun ActionBar(
                         disabledContainerColor = Color.Transparent
                     )
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back", tint = toolbarColor())
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
                 }
             }
         },

@@ -1,6 +1,9 @@
 package android.caged.employeemanagement.presentation.common
 
 import android.caged.employeemanagement.domain.model.Team
+import android.caged.employeemanagement.presentation.addemployee.AddEmployeeEvent
+import android.caged.employeemanagement.presentation.addemployee.AddEmployeeState
+import android.caged.employeemanagement.presentation.addemployee.CreateTeamState
 import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -41,7 +44,8 @@ fun TeamDropdownMenu(
     onTeamSelected: (Team) -> Unit,
     onTeamNameChanged: (String) -> Unit,
     onCreateNewTeam: () -> Unit,
-    showIsCreateTeam: Boolean = false
+    showIsCreateTeam: Boolean = false,
+    onEvent: (AddEmployeeEvent, (String, String) -> Unit) -> Unit
 ) {
 //    var expanded by remember { mutableStateOf(false) }
 //    var selectedText by remember { mutableStateOf(selectedTeam?.teamName ?: "Select a Team") }
@@ -146,6 +150,8 @@ fun TeamDropdownMenu(
                         Log.i("TeamDropdownMenu", "Team selected: ${team.teamName}")
                         selectedText = team.teamName
                         onTeamSelected(team)
+//                        teamState.showCreateTeam = false
+                        onEvent(AddEmployeeEvent.ChangeTeamState(false), {_,_->})
                         expanded = false // Close the dropdown after selection
                     }
                 )
@@ -156,6 +162,8 @@ fun TeamDropdownMenu(
                     text = { Text("Create New Team") },
                     onClick = {
                         isCreatingTeam = true
+                        // set teamState.isCreatingTeam to true
+                        onEvent(AddEmployeeEvent.ChangeTeamState(true), {_,_->})
                         expanded = false // Close dropdown and show creation UI
                     }
                 )
@@ -178,5 +186,7 @@ fun TeamDropdownMenuPreview() {
         teamName = "Team A",
         onTeamSelected = {},
         onTeamNameChanged = {},
-        onCreateNewTeam = {})
+        onCreateNewTeam = {},
+        onEvent = {_,_->},
+        )
 }

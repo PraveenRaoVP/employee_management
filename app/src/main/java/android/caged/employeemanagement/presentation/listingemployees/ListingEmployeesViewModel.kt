@@ -3,6 +3,7 @@ package android.caged.employeemanagement.presentation.listingemployees
 import android.caged.employeemanagement.domain.manager.LocalUserManager
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
+import android.caged.employeemanagement.presentation.home.HomeViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,16 +15,19 @@ import javax.inject.Inject
 @HiltViewModel
 class ListingEmployeesViewModel @Inject constructor(
     private val applicationUseCases: ApplicationUseCases,
-    private val localUserManager: LocalUserManager
+    private val localUserManager: LocalUserManager,
 ) : ViewModel() {
 
     val uiState = mutableStateOf(ListingState())
+
+    val shouldDelete = mutableStateOf(false)
 
     init {
         viewModelScope.launch {
             uiState.value = uiState.value.copy(teamMap = applicationUseCases.getAllTeamsAsMap())
             val currentUser = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!)
             if(currentUser?.position == Position.ADMIN) {
+                shouldDelete.value = true
                 uiState.value = uiState.value.copy(results = applicationUseCases.getAllEmployees())
                 uiState.value = uiState.value.copy(employees = applicationUseCases.getAllEmployees())
             } else if(currentUser?.position == Position.MANAGER) {
@@ -77,17 +81,23 @@ class ListingEmployeesViewModel @Inject constructor(
             is ListingEvent.DeleteEmployee -> {
                 viewModelScope.launch {
                     applicationUseCases.deleteEmployeeByID(event.employee.employeeId)
+
                     if(applicationUseCases.getEmployeeCountByTeam(event.employee.teamID) == 0 ) {
                         // delete team if there are no members present
                         applicationUseCases.deleteTeam(event.employee.teamID)
                     }
-                    if (uiState.value.filterByTeamID != -1L) {
-                        uiState.value = uiState.value.copy(
-                            results = applicationUseCases.getEmployeesByTeamID(uiState.value.filterByTeamID)
-                        )
+
+                    applicationUseCases.deleteCredentials(event.employee.employeeId)
+
+                    // Refresh the results list after deletion
+                    val updatedEmployeeList = if (uiState.value.filterByTeamID != -1L) {
+                        applicationUseCases.getEmployeesByTeamID(uiState.value.filterByTeamID)
                     } else {
-                        uiState.value = uiState.value.copy(results = applicationUseCases.getAllEmployees())
+                        applicationUseCases.getAllEmployees()
                     }
+
+                    // Update the UI state with the new list
+                    uiState.value = uiState.value.copy(results = updatedEmployeeList, employees = updatedEmployeeList)
                 }
             }
         }

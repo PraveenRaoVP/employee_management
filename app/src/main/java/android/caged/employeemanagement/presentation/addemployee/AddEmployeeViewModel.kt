@@ -2,6 +2,7 @@ package android.caged.employeemanagement.presentation.addemployee
 
 import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
+import android.caged.employeemanagement.domain.model.Team
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import androidx.compose.runtime.mutableStateOf
@@ -30,7 +31,7 @@ class AddEmployeeViewModel @Inject constructor(
             is AddEmployeeEvent.EmployeeNameChanged -> employeeNameChange(event.name)
             is AddEmployeeEvent.PositionChanged -> positionChange(event.position)
             is AddEmployeeEvent.TeamChanged -> teamChanged(event.teamId)
-            is AddEmployeeEvent.SalaryChanged -> salaryChanged(event.salary.toDouble())
+            is AddEmployeeEvent.SalaryChanged -> salaryChanged(event.salary)
             is AddEmployeeEvent.EmailChanged -> emailChanged(event.email)
             is AddEmployeeEvent.PhoneChanged -> phoneChanged(event.phone)
             is AddEmployeeEvent.PhotoImageUrlChanged -> photoImageUrlChanged(event.imageUrl)
@@ -38,6 +39,7 @@ class AddEmployeeViewModel @Inject constructor(
             is AddEmployeeEvent.TeamNameChanged -> teamNameChanged(event.teamName)
             AddEmployeeEvent.CreateEmployee -> createEmployee(navigateToPopUp)
             AddEmployeeEvent.ClearError -> uiState.value = uiState.value.copy(error = "")
+            is AddEmployeeEvent.ChangeTeamState -> teamState.value = teamState.value.copy(showCreateTeam = event.showCreateTeam)
         }
     }
 
@@ -61,7 +63,7 @@ class AddEmployeeViewModel @Inject constructor(
         uiState.value = uiState.value.copy(teamId = teamId)
     }
 
-    fun salaryChanged(salary: Double) {
+    fun salaryChanged(salary: String) {
         uiState.value = uiState.value.copy(salary = salary)
     }
 
@@ -100,14 +102,14 @@ class AddEmployeeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val employeeState = uiState.value
-                var teamId = employeeState.teamId
+                var teamId = uiState.value.teamId
 
                 // Step 1: Insert the employee into the database
                 val newEmployee = Employee(
                     employeeName = employeeState.employeeName,
                     position = employeeState.position,
                     designation = employeeState.designation,
-                    salary = employeeState.salary,
+                    salary = employeeState.salary.toDouble(),
                     email = employeeState.email,
                     teamID = teamId,  // Initially, it could be -1 if a new team is being created
                     phone = employeeState.phone,
@@ -117,10 +119,15 @@ class AddEmployeeViewModel @Inject constructor(
                 val generatedEmployeeId = applicationUseCases.insertEmployee(newEmployee)
 
                 // Step 2: If a new team is being created, create the team with this employee as the team lead
-                if (teamId == -1L) {  // Assuming -1 indicates a new team needs to be created
-                    teamId = applicationUseCases.createTeam(teamState.value.teamName, generatedEmployeeId)
+                if (uiState.value.teamId == -1L) {  // Assuming -1 indicates a new team needs to be created
+                    val newTeam = Team(teamName = teamState.value.teamName, teamLeadID = generatedEmployeeId)
+                    teamId = applicationUseCases.createTeam(newTeam)
+                    uiState.value = uiState.value.copy(teamId = teamId)
                     applicationUseCases.updateTeamIDInEmployee(employeeId = generatedEmployeeId, teamId = teamId)
                 }
+
+                // create credentials for the employee
+                applicationUseCases.insertCredentials(employeeId = generatedEmployeeId, password = "password")
 
                 // Step 4: Navigate to a success pop-up or another screen
                 navigateToPopUp(Screen.PostLogin.route, Screen.AddEmployeeRoute.route)

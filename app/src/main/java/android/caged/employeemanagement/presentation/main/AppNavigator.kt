@@ -1,14 +1,19 @@
 package android.caged.employeemanagement.presentation.main
 
+import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.presentation.addemployee.AddEmployeeScreen
 import android.caged.employeemanagement.presentation.components.ActionBar
 import android.caged.employeemanagement.presentation.components.BottomNavBar
+import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsEvent
+import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsScreen
+import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsViewModel
 import android.caged.employeemanagement.presentation.home.HomeScreen
 import android.caged.employeemanagement.presentation.home.HomeViewModel
 import android.caged.employeemanagement.presentation.listingemployees.ListingEmployeesScreen
 import android.caged.employeemanagement.presentation.listingemployees.ListingEmployeesViewModel
 import android.caged.employeemanagement.presentation.navgraph.Screen
+import android.caged.employeemanagement.presentation.profilepage.ProfilePageEvent
 import android.caged.employeemanagement.presentation.profilepage.ProfilePageScreen
 import android.caged.employeemanagement.presentation.profilepage.ProfilePageViewModel
 import android.caged.employeemanagement.presentation.settings.SettingsScreen
@@ -202,7 +207,8 @@ fun AppNavigator(
                     navigateToPopUp = navigateToPopUp,
                     navigateTo = navigateTo,
                     currentUser = appNavigatorViewModel.currentUser.value,
-                    state = viewModel.uiState.value
+                    state = viewModel.uiState.value,
+                    navigate = { employee -> navigateToDetails(navController, employee.employeeId) },
                 )
             }
 
@@ -221,23 +227,47 @@ fun AppNavigator(
                 ListingEmployeesScreen(
                     state = viewModel.uiState.value,
                     onEvent = viewModel::onEvent,
-                    navigate = {},
-                    shouldDelete = true,
+                    navigate = { employee -> navigateToDetails(navController, employee.employeeId) },
+                    shouldDelete = viewModel.shouldDelete.value,
                 )
             }
 
             composable(route = Screen.ProfileRoute.route) {
                 val viewModel: ProfilePageViewModel = hiltViewModel()
-                ProfilePageScreen(
-                    user = appNavigatorViewModel.currentUser.value,
-                    teamName = appNavigatorViewModel.currentUserTeam.value.teamName,
-                    onEvent = viewModel::onEvent,
-                    state = viewModel.uiState.value
-                )
+                val homeViewModel: HomeViewModel = hiltViewModel()
+
+                val employeeID = appNavigatorViewModel.currentUser.value.employeeId
+
+                employeeID.let {
+                    viewModel.onEvent(ProfilePageEvent.SetUserId(it))
+                }
+
+                viewModel.employee.value?.let { it1 ->
+                    ProfilePageScreen(
+                        user = it1,
+                        teamName = viewModel.teamName.value,
+                        onEvent = viewModel::onEvent,
+                        state = viewModel.uiState.value,
+//                        refreshData = { homeViewModel.refreshData() }
+                    )
+                }
             }
 
             composable(route = Screen.EmployeeDetailsRoute.route) {
-                // TODO: Employee Details Screen
+                val viewModel: EmployeeDetailsViewModel = hiltViewModel()
+                val employeeId = navController.previousBackStackEntry?.savedStateHandle?.get<Long>("employeeID")
+                employeeId?.let {
+                    viewModel.onEvent(EmployeeDetailsEvent.GetEmployee(it))
+                }
+
+                EmployeeDetailsScreen(
+                    employee = viewModel.employee.value,
+                    teamName = viewModel.teamName.value,
+                    onBack = {
+                        navigatePopBackStack(navController)
+                    },
+                    onEvent = viewModel::onEvent
+                )
             }
 
             composable(route = Screen.AddEmployeeRoute.route) {
@@ -269,7 +299,7 @@ private fun navigatePopBackStack(navController: NavController) {
     navController.popBackStack()
 }
 
-private fun navigateToDetails(navController: NavController) {
-//    navController.currentBackStackEntry?.savedStateHandle?.set("article", article)
-//    navController.navigate(Route.DetailsScreen.route)
+private fun navigateToDetails(navController: NavController, employeeID: Long) {
+    navController.currentBackStackEntry?.savedStateHandle?.set("employeeID", employeeID)
+    navController.navigate(Screen.EmployeeDetailsRoute.route)
 }

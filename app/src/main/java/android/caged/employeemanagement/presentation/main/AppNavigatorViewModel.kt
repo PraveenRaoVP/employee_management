@@ -32,6 +32,14 @@ class AppNavigatorViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             try {
+
+                val teamMap = applicationUseCases.getAllTeamsAsMap()
+                for((key, value) in teamMap) {
+                    if(applicationUseCases.getEmployeeCountByTeam(key) == 0) {
+                        applicationUseCases.deleteTeam(key)
+                    }
+                }
+
                 val credentials = localUserManager.credentials.first()
                 val userId = credentials.first ?: throw IllegalStateException("User ID is null")
                 val userDetails = applicationUseCases.getEmployeeById(userId)

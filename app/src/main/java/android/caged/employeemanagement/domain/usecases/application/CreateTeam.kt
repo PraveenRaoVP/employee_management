@@ -7,9 +7,8 @@ class CreateTeam(
     private val teamRepository: TeamRepository
 ) {
     suspend operator fun invoke(
-        teamName: String,
-        teamLeadId: Long
+        team: Team
     ) : Long {
-        return teamRepository.insertTeam(Team(teamName = teamName, teamLeadID = teamLeadId))
+        return teamRepository.insertTeam(team)
     }
 }

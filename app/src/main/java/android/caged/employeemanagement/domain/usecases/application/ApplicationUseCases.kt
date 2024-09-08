@@ -22,5 +22,8 @@ data class ApplicationUseCases(
     val deleteEmployeeByID: DeleteEmployeeByID,
     val getAllEmployees: GetAllEmployees,
     val getEmployeesByTeamID : GetEmployeesByTeamID,
-    val deleteTeam: DeleteTeam
+    val deleteTeam: DeleteTeam,
+    val updatePassword: UpdatePassword,
+    val insertCredentials: InsertCredentials,
+    val deleteCredentials : DeleteCredentials
 )

@@ -4,6 +4,7 @@ import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.presentation.common.EmployeeList
 import android.caged.employeemanagement.presentation.common.SearchBar
 import android.caged.employeemanagement.presentation.common.TeamDropdownMenu
+import android.caged.employeemanagement.presentation.home.HomeViewModel
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import kotlinx.coroutines.selects.select
 
 @Composable
@@ -21,7 +23,8 @@ fun ListingEmployeesScreen(
     state: ListingState,
     onEvent: (ListingEvent) -> Unit,
     navigate: (Employee) -> Unit,
-    shouldDelete: Boolean = false
+    shouldDelete: Boolean = false,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     Column(
         modifier = Modifier
@@ -49,19 +52,22 @@ fun ListingEmployeesScreen(
         }
         Log.i("ListingEmployeesScreen", "teamMap: ${state.teamMap}")
         // Team Dropdown Menu
-        Row {
-            Text(text = "Filter by Team: ${selectedTeam?.teamName ?: "None"}")
-            TeamDropdownMenu(
-                teams = state.teamMap.values.toList(),
-                selectedTeam = selectedTeam,
-                teamName = "",
-                onTeamSelected = { team ->
-                    onEvent(ListingEvent.FilterTeam(team.teamID))
-                },
-                onTeamNameChanged = {},
-                onCreateNewTeam = {},
-                showIsCreateTeam = false // Set to true if you want to allow creating new teams
-            )
+        if(shouldDelete) {
+            Row {
+                Text(text = "Filter by Team: ${selectedTeam?.teamName ?: "None"}")
+                TeamDropdownMenu(
+                    teams = state.teamMap.values.toList(),
+                    selectedTeam = selectedTeam,
+                    teamName = "",
+                    onTeamSelected = { team ->
+                        onEvent(ListingEvent.FilterTeam(team.teamID))
+                    },
+                    onTeamNameChanged = {},
+                    onCreateNewTeam = {},
+                    showIsCreateTeam = false, // Set to true if you want to allow creating new teams
+                    onEvent = { _, _ -> } // No-op
+                )
+            }
         }
 
         val filteredEmployeeList = if (state.filterByTeamID == -1L) {
@@ -77,6 +83,8 @@ fun ListingEmployeesScreen(
             shouldDelete = shouldDelete,
             onDeleteClicked = { employee ->
                 onEvent(ListingEvent.DeleteEmployee(employee))
+                homeViewModel.refreshData()
+                homeViewModel.refreshData()
             }
         )
     }

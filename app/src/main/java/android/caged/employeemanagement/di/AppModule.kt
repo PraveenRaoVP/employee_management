@@ -18,6 +18,7 @@ import android.caged.employeemanagement.domain.usecases.appentry.DarkModeEntry
 import android.caged.employeemanagement.domain.usecases.appentry.SaveCredentialsEntry
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.domain.usecases.application.CreateTeam
+import android.caged.employeemanagement.domain.usecases.application.DeleteCredentials
 import android.caged.employeemanagement.domain.usecases.application.DeleteEmployeeByID
 import android.caged.employeemanagement.domain.usecases.application.DeleteTeam
 import android.caged.employeemanagement.domain.usecases.application.FindEmployeeById
@@ -34,9 +35,11 @@ import android.caged.employeemanagement.domain.usecases.application.GetTeamByID
 import android.caged.employeemanagement.domain.usecases.application.GetTeamByName
 import android.caged.employeemanagement.domain.usecases.application.GetTeamCount
 import android.caged.employeemanagement.domain.usecases.application.GetTeamDetailsById
+import android.caged.employeemanagement.domain.usecases.application.InsertCredentials
 import android.caged.employeemanagement.domain.usecases.application.InsertEmployee
 import android.caged.employeemanagement.domain.usecases.application.SearchEmployee
 import android.caged.employeemanagement.domain.usecases.application.SearchEmployeeByTeam
+import android.caged.employeemanagement.domain.usecases.application.UpdatePassword
 import android.caged.employeemanagement.domain.usecases.application.UpdateProfileImage
 import android.caged.employeemanagement.domain.usecases.application.UpdateTeamIDInEmployee
 import android.content.Context
@@ -97,7 +100,10 @@ object AppModule {
         deleteEmployeeByID : DeleteEmployeeByID,
         getAllEmployees: GetAllEmployees,
         getEmployeesByTeamID: GetEmployeesByTeamID,
-        deleteTeam: DeleteTeam
+        deleteTeam: DeleteTeam,
+        updatePassword: UpdatePassword,
+        insertCredentials: InsertCredentials,
+        deleteCredentials: DeleteCredentials
     ): ApplicationUseCases {
         return ApplicationUseCases(
             findEmployeeById = findEmployeeById,
@@ -121,7 +127,10 @@ object AppModule {
             deleteEmployeeByID = deleteEmployeeByID,
             getAllEmployees = getAllEmployees,
             getEmployeesByTeamID = getEmployeesByTeamID,
-            deleteTeam = deleteTeam
+            deleteTeam = deleteTeam,
+            updatePassword = updatePassword,
+            insertCredentials = insertCredentials,
+            deleteCredentials = deleteCredentials
         )
     }
 
@@ -315,6 +324,30 @@ object AppModule {
         teamRepository: TeamRepository
     ): DeleteTeam {
         return DeleteTeam(teamRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUpdatePassword(
+        credentialsRepository: CredentialsRepository
+    ): UpdatePassword {
+        return UpdatePassword(credentialsRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideInsertCredentials(
+        credentialsRepository: CredentialsRepository
+    ): InsertCredentials {
+        return InsertCredentials(credentialsRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeleteCredentials(
+        credentialsRepository: CredentialsRepository
+    ): DeleteCredentials {
+        return DeleteCredentials(credentialsRepository)
     }
 
     /********************************************************************************************************************

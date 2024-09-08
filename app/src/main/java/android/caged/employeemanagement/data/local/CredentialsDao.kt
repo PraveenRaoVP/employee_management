@@ -16,4 +16,7 @@ interface CredentialsDao {
 
     @Query("UPDATE credentials SET password = :password WHERE employeeID = :employeeId")
     suspend fun updatePassword(employeeId: Long, password: String)
+
+    @Query("DELETE FROM credentials WHERE employeeID = :employeeId")
+    suspend fun deleteCredentials(employeeId: Long)
 }

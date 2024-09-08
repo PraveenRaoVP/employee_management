@@ -42,15 +42,10 @@ fun ProfilePageScreen(
     onEvent: (ProfilePageEvent) -> Unit,
     state: ProfilePageState
 ) {
-
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-    val imageUrl = remember { mutableStateOf(user.profileImageUrl) }
-    val isLoading = remember { mutableStateOf(true) }
-
 
     onEvent(ProfilePageEvent.SetUserId(user.employeeId.toLong()))
-    onEvent(ProfilePageEvent.SetProfileImageUrl(user.profileImageUrl))
 
     val imagePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
@@ -61,8 +56,7 @@ fun ProfilePageScreen(
                 // Update profile image URL in the Room database
                 coroutineScope.launch {
                     onEvent(ProfilePageEvent.UpdateProfileImageUrl(newProfileImageUrl))
-                    imageUrl.value = newProfileImageUrl
-                    isLoading.value = true // Show progress while loading new image
+                    onEvent(ProfilePageEvent.SetProfileImageUrl(newProfileImageUrl))
                 }
             }
         }
@@ -73,9 +67,6 @@ fun ProfilePageScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        if (isLoading.value) {
-            CircularProgressIndicator()
-        }
         AndroidView(
             factory = { context ->
                 ImageView(context).apply {
@@ -84,17 +75,6 @@ fun ProfilePageScreen(
                         .load(state.profileImageUrl)
                         .circleCrop()
                         .listener(object : RequestListener<Drawable> {
-                            override fun onResourceReady(
-                                resource: Drawable,
-                                model: Any,
-                                target: com.bumptech.glide.request.target.Target<Drawable>?,
-                                dataSource: DataSource,
-                                isFirstResource: Boolean
-                            ): Boolean {
-                                isLoading.value = false
-                                return false
-                            }
-
                             override fun onLoadFailed(
                                 e: GlideException?,
                                 model: Any?,
@@ -102,9 +82,19 @@ fun ProfilePageScreen(
                                 isFirstResource: Boolean
                             ): Boolean {
                                 Log.e("Glide", "Image load failed", e)
-                                isLoading.value = false
                                 return false
                             }
+
+                            override fun onResourceReady(
+                                resource: Drawable,
+                                model: Any,
+                                target: Target<Drawable>?,
+                                dataSource: DataSource,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                return false // Allow Glide to display the image
+                            }
+
                         })
                         .into(this)
                 }
@@ -112,24 +102,19 @@ fun ProfilePageScreen(
             modifier = Modifier
                 .height(128.dp)
                 .clickable {
-                    // Trigger the image picker when the image is clicked
                     imagePickerLauncher.launch("image/*")
                 }
-                .border(
-                    width = 1.dp,
-                    color = Color.White,
-                    shape = RoundedCornerShape(50.dp)
-                )
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Display Employee Information
         Text(text = "Name: ${user.employeeName}")
-        Text(text = "Email: ${user.email}")
-        Text(text = "Phone: ${user.phone}")
+        Text(text = "Designation: ${user.designation}")
         Text(text = "Position: ${user.position}")
         Text(text = "Team: $teamName")
+        Text(text = "Salary: ${user.salary}")
+        Text(text = "Email: ${user.email}")
+        Text(text = "Phone: ${user.phone}")
     }
 }
 
@@ -150,6 +135,7 @@ fun ProfilePageScreenPreview() {
         ),
         teamName = "Team A",
         onEvent = {},
-        state = ProfilePageState()
+        state = ProfilePageState(),
+//        refreshData = {}
     )
 }

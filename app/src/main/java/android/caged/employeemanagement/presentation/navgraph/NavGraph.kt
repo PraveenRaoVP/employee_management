@@ -4,6 +4,7 @@ import android.caged.employeemanagement.presentation.addemployee.AddEmployeeScre
 import android.caged.employeemanagement.presentation.addemployee.AddEmployeeViewModel
 import android.caged.employeemanagement.presentation.auth.login.LoginScreen
 import android.caged.employeemanagement.presentation.auth.login.LoginViewModel
+import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsViewModel
 import android.caged.employeemanagement.presentation.main.AppNavigator
 import android.caged.employeemanagement.presentation.main.AppNavigatorViewModel
 import android.caged.employeemanagement.presentation.settings.SettingsScreen

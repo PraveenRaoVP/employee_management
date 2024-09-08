@@ -18,4 +18,8 @@ class CredentialsRepositoryImpl(
     override suspend fun updatePassword(employeeId: Long, password: String) {
         credentialsDao.updatePassword(employeeId, password)
     }
+
+    override suspend fun deleteCredentials(employeeId: Long) {
+        credentialsDao.deleteCredentials(employeeId)
+    }
 }

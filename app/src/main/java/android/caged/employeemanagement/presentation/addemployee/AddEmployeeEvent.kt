@@ -12,6 +12,8 @@ sealed interface AddEmployeeEvent {
     data class PhoneChanged(val phone: String) : AddEmployeeEvent
     data class PhotoImageUrlChanged(val imageUrl: String) : AddEmployeeEvent
     data class TeamNameChanged(val teamName: String) : AddEmployeeEvent
+    data class ChangeTeamState(val showCreateTeam: Boolean) : AddEmployeeEvent
+
     data object CreateTeam : AddEmployeeEvent
     data object CreateEmployee : AddEmployeeEvent
     data object ClearError : AddEmployeeEvent
