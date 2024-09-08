@@ -7,6 +7,7 @@ import android.caged.employeemanagement.domain.model.Team
 import android.caged.employeemanagement.domain.repository.EmployeeRepository
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.navgraph.Screen
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -30,15 +31,31 @@ class AppNavigatorViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val userDetails = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!)
-            currentUser.value = userDetails!!
-            currentUserTeam.value = applicationUseCases.getTeamDetailsById(userDetails!!.teamID)!!
-            if(userDetails?.position == Position.ADMIN) {
-                userType.value = Position.ADMIN
-            } else if(userDetails?.position == Position.MANAGER) {
-                userType.value = Position.MANAGER
-            } else {
-                userType.value = Position.EMPLOYEE
+            try {
+                val credentials = localUserManager.credentials.first()
+                val userId = credentials.first ?: throw IllegalStateException("User ID is null")
+                val userDetails = applicationUseCases.getEmployeeById(userId)
+                if (userDetails != null) {
+                    currentUser.value = userDetails
+                    val teamDetails = applicationUseCases.getTeamDetailsById(userDetails.teamID)
+                    if (teamDetails != null) {
+                        currentUserTeam.value = teamDetails
+                    } else {
+                        Log.i("AppNavigatorViewModel", "Team details could not be retrieved")
+                    }
+                    userType.value = when (userDetails.position) {
+                        Position.ADMIN -> Position.ADMIN
+                        Position.MANAGER -> Position.MANAGER
+                        else -> Position.EMPLOYEE
+                    }
+                } else {
+                    // Handle case where userDetails is null
+                    throw IllegalStateException("User details could not be retrieved")
+                }
+            } catch (e: Exception) {
+                // Handle exceptions and possibly log the error
+                e.printStackTrace()
+                // Optionally, you can show a user-friendly error message or fallback UI
             }
         }
     }

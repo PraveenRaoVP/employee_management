@@ -1,6 +1,7 @@
 package android.caged.employeemanagement.presentation.navgraph
 
 import android.caged.employeemanagement.presentation.addemployee.AddEmployeeScreen
+import android.caged.employeemanagement.presentation.addemployee.AddEmployeeViewModel
 import android.caged.employeemanagement.presentation.auth.login.LoginScreen
 import android.caged.employeemanagement.presentation.auth.login.LoginViewModel
 import android.caged.employeemanagement.presentation.main.AppNavigator
@@ -71,7 +72,20 @@ fun NavGraph(startDestination: String) {
             }
 
             composable(route = Screen.AddEmployeeRoute.route) {
-                AddEmployeeScreen()
+                val viewModel : AddEmployeeViewModel = hiltViewModel()
+                AddEmployeeScreen(
+                    state = viewModel.uiState.value,
+                    teamState = viewModel.teamState.value,
+                    onEvent = viewModel::onEvent,
+                    teams = viewModel.teamState.value.teams.values.toList(),
+                    navigateToPopUp = { route, popUp ->
+                        navigateToPopUp(
+                            route,
+                            popUp,
+                            navController
+                        )
+                    }
+                )
             }
         }
     }

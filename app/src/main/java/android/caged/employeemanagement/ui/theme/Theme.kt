@@ -30,6 +30,7 @@ private val LightColorScheme = lightColorScheme(
     surface = Color.White
 )
 
+
 @Composable
 fun EmployeeManagementTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),

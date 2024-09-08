@@ -7,7 +7,7 @@ data class AddEmployeeState(
     val position: Position = Position.ADMIN,
     val designation: String = "",
     val salary: Double = 0.0,
-    val teamId: Long = -1,
+    val teamId: Long = -1L,
     val email: String = "",
     val phone: String = "",
     val profileImageUrl: String = "",

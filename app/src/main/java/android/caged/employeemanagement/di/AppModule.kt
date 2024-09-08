@@ -17,13 +17,31 @@ import android.caged.employeemanagement.domain.repository.TeamRepository
 import android.caged.employeemanagement.domain.usecases.appentry.DarkModeEntry
 import android.caged.employeemanagement.domain.usecases.appentry.SaveCredentialsEntry
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
+import android.caged.employeemanagement.domain.usecases.application.CreateTeam
+import android.caged.employeemanagement.domain.usecases.application.DeleteEmployeeByID
+import android.caged.employeemanagement.domain.usecases.application.DeleteTeam
 import android.caged.employeemanagement.domain.usecases.application.FindEmployeeById
+import android.caged.employeemanagement.domain.usecases.application.GetAllEmployees
+import android.caged.employeemanagement.domain.usecases.application.GetAllTeamsAsMap
 import android.caged.employeemanagement.domain.usecases.application.GetCredentials
 import android.caged.employeemanagement.domain.usecases.application.GetEmployeeById
+import android.caged.employeemanagement.domain.usecases.application.GetEmployeeCount
+import android.caged.employeemanagement.domain.usecases.application.GetEmployeeCountByTeam
+import android.caged.employeemanagement.domain.usecases.application.GetEmployeesByTeamID
+import android.caged.employeemanagement.domain.usecases.application.GetRecentEmployees
+import android.caged.employeemanagement.domain.usecases.application.GetRecentEmployeesByTeamId
+import android.caged.employeemanagement.domain.usecases.application.GetTeamByID
+import android.caged.employeemanagement.domain.usecases.application.GetTeamByName
+import android.caged.employeemanagement.domain.usecases.application.GetTeamCount
 import android.caged.employeemanagement.domain.usecases.application.GetTeamDetailsById
+import android.caged.employeemanagement.domain.usecases.application.InsertEmployee
+import android.caged.employeemanagement.domain.usecases.application.SearchEmployee
+import android.caged.employeemanagement.domain.usecases.application.SearchEmployeeByTeam
 import android.caged.employeemanagement.domain.usecases.application.UpdateProfileImage
+import android.caged.employeemanagement.domain.usecases.application.UpdateTeamIDInEmployee
 import android.content.Context
 import android.util.Log
+import androidx.room.Delete
 import androidx.room.Room
 import dagger.Module
 import dagger.Provides
@@ -34,6 +52,10 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
+    /********************************************************************************************************************
+     * Application
+     ********************************************************************************************************************/
 
     @Provides
     @Singleton
@@ -47,6 +69,10 @@ object AppModule {
         return LocalUserManagerImpl(application)
     }
 
+    /********************************************************************************************************************
+     * Use Cases
+     ********************************************************************************************************************/
+
     @Provides
     @Singleton
     fun provideApplicationUseCases(
@@ -54,14 +80,48 @@ object AppModule {
         getCredentials: GetCredentials,
         getEmployeeById: GetEmployeeById,
         getTeamDetailsById: GetTeamDetailsById,
-        updateProfileImage: UpdateProfileImage
+        updateProfileImage: UpdateProfileImage,
+        getEmployeeCount: GetEmployeeCount,
+        getRecentEmployees: GetRecentEmployees,
+        getRecentEmployeesByTeamId: GetRecentEmployeesByTeamId,
+        searchEmployee: SearchEmployee,
+        searchEmployeeByTeam: SearchEmployeeByTeam,
+        getTeamCount: GetTeamCount,
+        getEmployeeCountByTeam : GetEmployeeCountByTeam,
+        getAllTeamsAsMap: GetAllTeamsAsMap,
+        getTeamByName: GetTeamByName,
+        getTeamByID: GetTeamByID,
+        insertEmployee: InsertEmployee,
+        createTeam: CreateTeam,
+        updateTeamIDInEmployee: UpdateTeamIDInEmployee,
+        deleteEmployeeByID : DeleteEmployeeByID,
+        getAllEmployees: GetAllEmployees,
+        getEmployeesByTeamID: GetEmployeesByTeamID,
+        deleteTeam: DeleteTeam
     ): ApplicationUseCases {
         return ApplicationUseCases(
             findEmployeeById = findEmployeeById,
             getCredentials = getCredentials,
             getEmployeeById = getEmployeeById,
             getTeamDetailsById = getTeamDetailsById,
-            updateProfileImage = updateProfileImage
+            updateProfileImage = updateProfileImage,
+            getEmployeeCount = getEmployeeCount,
+            getRecentEmployees = getRecentEmployees,
+            getRecentEmployeesByTeamId = getRecentEmployeesByTeamId,
+            searchEmployee = searchEmployee,
+            searchEmployeeByTeam = searchEmployeeByTeam,
+            getTeamCount = getTeamCount,
+            getEmployeeCountByTeam = getEmployeeCountByTeam,
+            getAllTeamsAsMap = getAllTeamsAsMap,
+            getTeamByName = getTeamByName,
+            getTeamById = getTeamByID,
+            insertEmployee = insertEmployee,
+            createTeam = createTeam,
+            updateTeamIDInEmployee = updateTeamIDInEmployee,
+            deleteEmployeeByID = deleteEmployeeByID,
+            getAllEmployees = getAllEmployees,
+            getEmployeesByTeamID = getEmployeesByTeamID,
+            deleteTeam = deleteTeam
         )
     }
 
@@ -115,11 +175,152 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideGetAllTeamsAsMap(
+        teamRepository: TeamRepository
+    ) : GetAllTeamsAsMap {
+        return GetAllTeamsAsMap(teamRepository)
+    }
+
+    @Provides
+    @Singleton
     fun provideUpdateProfileImage(
         employeeRepository: EmployeeRepository
     ): UpdateProfileImage {
         return UpdateProfileImage(employeeRepository)
     }
+
+    @Provides
+    @Singleton
+    fun provideGetEmployeeCount(
+        employeeRepository: EmployeeRepository
+    ): GetEmployeeCount {
+        return GetEmployeeCount(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetEmployeeCountByTeamId(
+        employeeRepository: EmployeeRepository
+    ): GetEmployeeCountByTeam {
+        return GetEmployeeCountByTeam(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetRecentEmployees(
+        employeeRepository: EmployeeRepository
+    ): GetRecentEmployees {
+        return GetRecentEmployees(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetRecentEmployeesByTeamId(
+        employeeRepository: EmployeeRepository
+    ): GetRecentEmployeesByTeamId {
+        return GetRecentEmployeesByTeamId(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchEmployee(
+        employeeRepository: EmployeeRepository
+    ): SearchEmployee {
+        return SearchEmployee(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideSearchEmployeeByTeam(
+        employeeRepository: EmployeeRepository
+    ): SearchEmployeeByTeam {
+        return SearchEmployeeByTeam(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetTeamCount(
+        teamRepository: TeamRepository
+    ) : GetTeamCount {
+        return GetTeamCount(teamRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetTeamByName(
+        teamRepository: TeamRepository
+    ) : GetTeamByName {
+        return GetTeamByName(teamRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetTeamById(
+        teamRepository: TeamRepository
+    ): GetTeamByID {
+        return GetTeamByID(teamRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideInsertEmployee(
+        employeeRepository: EmployeeRepository
+    ): InsertEmployee {
+        return InsertEmployee(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideCreateTeam(
+        teamRepository: TeamRepository
+    ): CreateTeam {
+        return CreateTeam(teamRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUpdateTeamIDInEmployee(
+        employeeRepository: EmployeeRepository
+    ): UpdateTeamIDInEmployee {
+        return UpdateTeamIDInEmployee(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeleteEmployeeByID(
+        employeeRepository: EmployeeRepository
+    ): DeleteEmployeeByID {
+        return DeleteEmployeeByID(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetAllEmployees(
+        employeeRepository: EmployeeRepository
+    ): GetAllEmployees {
+        return GetAllEmployees(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideGetEmployeesByTeamID(
+        employeeRepository: EmployeeRepository
+    ): GetEmployeesByTeamID {
+        return GetEmployeesByTeamID(employeeRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideDeleteTeam(
+        teamRepository: TeamRepository
+    ): DeleteTeam {
+        return DeleteTeam(teamRepository)
+    }
+
+    /********************************************************************************************************************
+     * Database
+     ********************************************************************************************************************/
+
 
     @Provides
     @Singleton
@@ -155,6 +356,11 @@ object AppModule {
     fun provideTeamDao(employeeManagementDatabase: EmployeeManagementDatabase): TeamDao {
         return employeeManagementDatabase.teamDao()
     }
+
+
+    /********************************************************************************************************************
+     * Repository
+     ********************************************************************************************************************/
 
     @Provides
     @Singleton

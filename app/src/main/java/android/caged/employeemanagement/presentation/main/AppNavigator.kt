@@ -1,15 +1,19 @@
 package android.caged.employeemanagement.presentation.main
 
 import android.caged.employeemanagement.domain.model.Position
+import android.caged.employeemanagement.presentation.addemployee.AddEmployeeScreen
 import android.caged.employeemanagement.presentation.components.ActionBar
 import android.caged.employeemanagement.presentation.components.BottomNavBar
 import android.caged.employeemanagement.presentation.home.HomeScreen
 import android.caged.employeemanagement.presentation.home.HomeViewModel
+import android.caged.employeemanagement.presentation.listingemployees.ListingEmployeesScreen
+import android.caged.employeemanagement.presentation.listingemployees.ListingEmployeesViewModel
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import android.caged.employeemanagement.presentation.profilepage.ProfilePageScreen
 import android.caged.employeemanagement.presentation.profilepage.ProfilePageViewModel
 import android.caged.employeemanagement.presentation.settings.SettingsScreen
 import android.caged.employeemanagement.presentation.settings.SettingsViewModel
+import android.util.Log
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
@@ -80,6 +84,10 @@ fun AppNavigator(
         mutableIntStateOf(0)
     }
 
+    var selectedItemEmp by rememberSaveable {
+        mutableIntStateOf(0)
+    }
+
     val isBottomBarVisible = remember(key1 = backStackState) {
         backStackState?.destination?.route == Screen.HomeRoute.route ||
                 backStackState?.destination?.route == Screen.ListingEmployees.route ||
@@ -93,6 +101,12 @@ fun AppNavigator(
         else -> 0
     }
 
+    selectedItemEmp = when(backStackState?.destination?.route) {
+        Screen.HomeRoute.route -> 0
+        Screen.ProfileRoute.route -> 1
+        else -> 0
+    }
+
     val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
@@ -103,7 +117,7 @@ fun AppNavigator(
                     title = if(appNavigatorViewModel.userType.value == Position.ADMIN || appNavigatorViewModel.userType.value == Position.MANAGER) {
                         bottomNavAdminItems[selectedItem].label
                     } else {
-                        bottomNavEmployeeItems[selectedItem].label
+                        bottomNavEmployeeItems[selectedItemEmp].label
                     },
                     onSettingsClick = {
                         navigateTo(Screen.SettingsRoute.route)
@@ -128,22 +142,46 @@ fun AppNavigator(
                     } else {
                         bottomNavEmployeeItems
                     },
-                    selectedItem = selectedItem,
+                    selectedItem = if(appNavigatorViewModel.userType.value == Position.ADMIN || appNavigatorViewModel.userType.value == Position.MANAGER) {
+                        selectedItem
+                    } else {
+                        selectedItemEmp
+                    },
                     onItemSelect = { index ->
-                        when (index) {
-                            0 -> {
-                                appNavigatorViewModel.previousScreen.value = Screen.HomeRoute.route
-                                navigateToTab(navController, Screen.HomeRoute.route)
-                            }
+                        if(appNavigatorViewModel.userType.value == Position.ADMIN || appNavigatorViewModel.userType.value == Position.MANAGER) {
+                            when (index) {
+                                0 -> {
+                                    appNavigatorViewModel.previousScreen.value = Screen.HomeRoute.route
+                                    navigateToTab(navController, Screen.HomeRoute.route)
+                                }
 
-                            1 -> {
-                                appNavigatorViewModel.previousScreen.value = Screen.ListingEmployees.route
-                                navigateToTab(navController, Screen.ListingEmployees.route)
-                            }
+                                1 -> {
+                                    appNavigatorViewModel.previousScreen.value = Screen.ListingEmployees.route
+                                    navigateToTab(navController, Screen.ListingEmployees.route)
+                                }
 
-                            2 -> {
-                                appNavigatorViewModel.previousScreen.value = Screen.ProfileRoute.route
-                                navigateToTab(navController, Screen.ProfileRoute.route)
+                                2 -> {
+                                    appNavigatorViewModel.previousScreen.value = Screen.ProfileRoute.route
+                                    navigateToTab(navController, Screen.ProfileRoute.route)
+                                }
+                                else -> {
+                                    Log.i("AppNavigator", "Invalid index")
+                                }
+                            }
+                        } else {
+                            when (index) {
+                                0 -> {
+                                    appNavigatorViewModel.previousScreen.value = Screen.HomeRoute.route
+                                    navigateToTab(navController, Screen.HomeRoute.route)
+                                }
+
+                                1 -> {
+                                    appNavigatorViewModel.previousScreen.value = Screen.ProfileRoute.route
+                                    navigateToTab(navController, Screen.ProfileRoute.route)
+                                }
+                                else -> {
+                                    Log.i("AppNavigator", "Invalid index")
+                                }
                             }
                         }
                     }
@@ -152,17 +190,19 @@ fun AppNavigator(
         }
     ) { innerPadding ->
         val bottomPadding = innerPadding.calculateBottomPadding()
+        val topPadding = innerPadding.calculateTopPadding()
         NavHost(
             navController = navController,
             startDestination = Screen.HomeRoute.route,
-            modifier = Modifier.padding(bottom = bottomPadding)
+            modifier = Modifier.padding(bottom = bottomPadding, top = topPadding)
         ) {
             composable(route = Screen.HomeRoute.route) {
                 val viewModel: HomeViewModel = hiltViewModel()
                 HomeScreen(
                     navigateToPopUp = navigateToPopUp,
                     navigateTo = navigateTo,
-                    currentUser = appNavigatorViewModel.currentUser.value
+                    currentUser = appNavigatorViewModel.currentUser.value,
+                    state = viewModel.uiState.value
                 )
             }
 
@@ -177,7 +217,13 @@ fun AppNavigator(
 
 
             composable(route = Screen.ListingEmployees.route) {
-                // TODO: Implement Listing employees screen
+                val viewModel: ListingEmployeesViewModel = hiltViewModel()
+                ListingEmployeesScreen(
+                    state = viewModel.uiState.value,
+                    onEvent = viewModel::onEvent,
+                    navigate = {},
+                    shouldDelete = true,
+                )
             }
 
             composable(route = Screen.ProfileRoute.route) {
@@ -195,7 +241,7 @@ fun AppNavigator(
             }
 
             composable(route = Screen.AddEmployeeRoute.route) {
-
+//                AddEmployeeScreen(state = , teamState = , teams = , onEvent = , navigateToPopUp = navigateToPopUp)
             }
         }
     }
