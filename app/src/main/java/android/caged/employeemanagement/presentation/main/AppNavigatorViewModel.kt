@@ -62,8 +62,10 @@ class AppNavigatorViewModel @Inject constructor(
 
                 applicationUseCases.createTeam(Team(1, "Admin", 2))
 
-                applicationUseCases.insertCredentials( 1, "admin")
-                applicationUseCases.insertCredentials( 2, "admin")
+                if(applicationUseCases.getCredentials(1) == null && applicationUseCases.getCredentials(2) == null) {
+                    applicationUseCases.insertCredentials( 1, "admin")
+                    applicationUseCases.insertCredentials( 2, "admin")
+                }
 
                 val teamMap = applicationUseCases.getAllTeamsAsMap()
                 for((key, value) in teamMap) {

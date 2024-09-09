@@ -108,7 +108,7 @@ fun ProfilePageScreen(
         )
 
         Spacer(modifier = Modifier.height(16.dp))
-
+        Text(text = "EmployeeID : ${user.employeeId}")
         Text(text = "Name: ${user.employeeName}")
         Text(text = "Designation: ${user.designation}")
         Text(text = "Position: ${user.position}")

@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -28,6 +29,11 @@ fun ListingEmployeesScreen(
     navigate: (Employee) -> Unit,
     shouldDelete: Boolean = false,
 ) {
+    LaunchedEffect(Unit) {
+        // get teams list
+        onEvent(ListingEvent.GetTeams)
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()

@@ -77,6 +77,7 @@ fun EmployeeDetailsScreen(
             )
 
             // Display the employee details
+            Text(text = "EmployeeID : ${emp.employeeId}")
             Text(text = "Name: ${emp.employeeName}")
             Text(text = "Designation: ${emp.designation}")
             Text(text = "Position: ${emp.position}")

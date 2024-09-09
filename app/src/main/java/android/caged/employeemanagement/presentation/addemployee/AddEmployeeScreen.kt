@@ -110,7 +110,7 @@ fun AddEmployeeScreen(
 
                 // Update profile image URL in the Room database
                 coroutineScope.launch {
-                    onEvent(AddEmployeeEvent.PhotoImageUrlChanged(newProfileImageUrl), {_,_ ->})
+                    onEvent(AddEmployeeEvent.PhotoImageUrlChanged(newProfileImageUrl), { _, _ -> })
                 }
             }
         }
@@ -120,7 +120,12 @@ fun AddEmployeeScreen(
             ActionBar(
                 title = "AddEmployee",
                 isBackEnabled = true,
-                onBackClick = { navigateToPopUp(Screen.PostLogin.route, Screen.AddEmployeeRoute.route) },
+                onBackClick = {
+                    navigateToPopUp(
+                        Screen.PostLogin.route,
+                        Screen.AddEmployeeRoute.route
+                    )
+                },
                 isAddEmployeeButton = false,
                 onAddEmployeeClick = {},
                 isSettingsEnabled = false
@@ -208,7 +213,7 @@ fun AddEmployeeScreen(
 
                 var isCreateTeam = false
 
-                if (state.position == Position.MANAGER || state.position == Position.ADMIN) {
+                if (state.position == Position.MANAGER) {
                     isCreateTeam = true
                 }
 
@@ -235,7 +240,6 @@ fun AddEmployeeScreen(
                         onEvent = onEvent
                     )
                 }
-
                 // if create new team is clicked, show a textfield asking for new team's name
                 if (teamState.showCreateTeam) {
                     TextField(
@@ -247,6 +251,12 @@ fun AddEmployeeScreen(
                         },
                         label = { Text("Team Name") }
                     )
+                    if (!teamState.disableTeamCreateButton) {
+
+                        Button(onClick = { onEvent(AddEmployeeEvent.CreateTeam, navigateToPopUp) }) {
+                            Text("Create Team")
+                        }
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
@@ -319,10 +329,15 @@ fun AddEmployeeScreen(
                     }
                 }
 
-                Button(onClick = { onEvent(AddEmployeeEvent.CreateEmployee, navigateToPopUp) }) {
+                Button(onClick = {
+                    onEvent(
+                        AddEmployeeEvent.CreateEmployee,
+                        navigateToPopUp
+                    )
+                }) {
                     Text("Create Employee")
                 }
-                if(state.error.isNotBlank()) {
+                if (state.error.isNotBlank()) {
                     Text(state.error)
                 }
             }
@@ -339,9 +354,11 @@ fun PositionDropdownMenu(
     var expanded by remember { mutableStateOf(false) }
     val positions = Position.entries.toTypedArray()
 
-    Box(modifier = Modifier
-        .fillMaxWidth()
-        .padding(start = 16.dp)) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(start = 16.dp)
+    ) {
         IconButton(onClick = { expanded = !expanded }) {
             Icon(
                 imageVector = Icons.Default.ArrowDropDown,

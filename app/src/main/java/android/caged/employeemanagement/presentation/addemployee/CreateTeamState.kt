@@ -6,5 +6,6 @@ data class CreateTeamState(
     val teamName: String = "",
     val teamLeadId: Long = -1,
     val teams: Map<Long, Team> = emptyMap(),
-    val showCreateTeam: Boolean = false
+    val showCreateTeam: Boolean = false,
+    val disableTeamCreateButton: Boolean = false
 )

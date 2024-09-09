@@ -8,7 +8,7 @@ class CreateTeam(
 ) {
     suspend operator fun invoke(
         team: Team
-    ) {
-        teamRepository.insertTeam(team)
+    ) : Long {
+        return teamRepository.insertTeam(team)
     }
 }

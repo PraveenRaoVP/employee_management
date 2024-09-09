@@ -10,7 +10,7 @@ import androidx.room.Query
 @Dao
 interface TeamDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertTeam(team: Team)
+    suspend fun insertTeam(team: Team): Long
 
     @Query("SELECT * FROM team WHERE teamName = :teamName LIMIT 1")
     suspend fun getTeamByName(teamName: String): Team?
@@ -26,4 +26,7 @@ interface TeamDao {
 
     @Query("DELETE FROM team WHERE teamId = :teamId")
     suspend fun deleteTeamById(teamId: Long)
+
+    @Query("UPDATE team SET teamLeadID = :teamLeadId WHERE teamId = :teamId")
+    suspend fun updateTeamLeadIdInTeam(teamId: Long, teamLeadId: Long)
 }

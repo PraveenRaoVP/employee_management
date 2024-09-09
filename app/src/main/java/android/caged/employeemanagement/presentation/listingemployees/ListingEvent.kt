@@ -8,4 +8,5 @@ sealed interface ListingEvent {
     data class FilterTeam(val teamID: Long) : ListingEvent
     data class UpdateSearchQuery(val searchQuery: String) : ListingEvent
     data class DeleteEmployee(val employee: Employee) : ListingEvent
+    data object GetTeams : ListingEvent
 }

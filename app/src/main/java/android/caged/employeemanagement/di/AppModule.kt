@@ -42,6 +42,7 @@ import android.caged.employeemanagement.domain.usecases.application.SearchEmploy
 import android.caged.employeemanagement.domain.usecases.application.UpdatePassword
 import android.caged.employeemanagement.domain.usecases.application.UpdateProfileImage
 import android.caged.employeemanagement.domain.usecases.application.UpdateTeamIDInEmployee
+import android.caged.employeemanagement.domain.usecases.application.UpdateTeamLeadIDInTeam
 import android.content.Context
 import android.util.Log
 import androidx.room.Delete
@@ -103,7 +104,8 @@ object AppModule {
         deleteTeam: DeleteTeam,
         updatePassword: UpdatePassword,
         insertCredentials: InsertCredentials,
-        deleteCredentials: DeleteCredentials
+        deleteCredentials: DeleteCredentials,
+        updateTeamLeadIDInTeam: UpdateTeamLeadIDInTeam
     ): ApplicationUseCases {
         return ApplicationUseCases(
             findEmployeeById = findEmployeeById,
@@ -130,7 +132,8 @@ object AppModule {
             deleteTeam = deleteTeam,
             updatePassword = updatePassword,
             insertCredentials = insertCredentials,
-            deleteCredentials = deleteCredentials
+            deleteCredentials = deleteCredentials,
+            updateTeamLeadIDInTeam = updateTeamLeadIDInTeam
         )
     }
 
@@ -348,6 +351,14 @@ object AppModule {
         credentialsRepository: CredentialsRepository
     ): DeleteCredentials {
         return DeleteCredentials(credentialsRepository)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUpdateTeamLeadIDInTeam(
+        teamRepository: TeamRepository
+    ): UpdateTeamLeadIDInTeam {
+        return UpdateTeamLeadIDInTeam(teamRepository)
     }
 
     /********************************************************************************************************************

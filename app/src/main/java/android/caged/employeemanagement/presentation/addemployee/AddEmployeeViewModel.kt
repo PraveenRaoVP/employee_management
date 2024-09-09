@@ -36,7 +36,7 @@ class AddEmployeeViewModel @Inject constructor(
             is AddEmployeeEvent.EmailChanged -> emailChanged(event.email)
             is AddEmployeeEvent.PhoneChanged -> phoneChanged(event.phone)
             is AddEmployeeEvent.PhotoImageUrlChanged -> photoImageUrlChanged(event.imageUrl)
-            is AddEmployeeEvent.CreateTeam -> TODO()
+            is AddEmployeeEvent.CreateTeam -> createTeam()
             is AddEmployeeEvent.TeamNameChanged -> teamNameChanged(event.teamName)
             AddEmployeeEvent.CreateEmployee -> createEmployee(navigateToPopUp)
             AddEmployeeEvent.ClearError -> uiState.value = uiState.value.copy(error = "")
@@ -80,18 +80,18 @@ class AddEmployeeViewModel @Inject constructor(
         uiState.value = uiState.value.copy(profileImageUrl = url)
     }
 
-//    fun createTeam() {
-//        viewModelScope.launch {
-//            val teamName = teamState.value.teamName
-//            if(applicationUseCases.getTeamByName(teamName) == null) {
-//                // Assume `applicationUseCases.createTeam` adds the team to the database.
-//                val teamId = applicationUseCases.createTeam(teamName, uiState.value.employeeId)
-//                uiState.value = uiState.value.copy(teamId = teamId)
-//            } else {
-//                uiState.value = uiState.value.copy(error = "Team name already exists")
-//            }
-//        }
-//    }
+    fun createTeam() {
+        viewModelScope.launch {
+            val teamName = teamState.value.teamName
+            if(applicationUseCases.getTeamByName(teamName) == null) {
+                val teamId = applicationUseCases.createTeam(Team(teamName = teamName, teamLeadID = -1))
+                uiState.value = uiState.value.copy(teamId = teamId)
+                teamState.value = teamState.value.copy(disableTeamCreateButton = true)
+            } else {
+                uiState.value = uiState.value.copy(error = "Team name already exists")
+            }
+        }
+    }
 
     fun createEmployee(navigateToPopUp: (String, String) -> Unit) {
         uiState.value = uiState.value.copy(error = "")
@@ -103,7 +103,6 @@ class AddEmployeeViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 val employeeState = uiState.value
-                var teamId = uiState.value.teamId
 
                 // Step 1: Insert the employee into the database
                 val newEmployee = Employee(
@@ -112,25 +111,30 @@ class AddEmployeeViewModel @Inject constructor(
                     designation = employeeState.designation,
                     salary = employeeState.salary.toDouble(),
                     email = employeeState.email,
-                    teamID = teamId,  // Initially, it could be -1 if a new team is being created
+                    teamID = uiState.value.teamId,  // Initially, it could be -1 if a new team is being created
                     phone = employeeState.phone,
                     profileImageUrl = employeeState.profileImageUrl
                 )
 
                 val generatedEmployeeId = applicationUseCases.insertEmployee(newEmployee)
 
-                // Step 2: If a new team is being created, create the team with this employee as the team lead
-                if (uiState.value.teamId == -1L) {  // Assuming -1 indicates a new team needs to be created
-                    val newTeam = Team(teamName = teamState.value.teamName, teamLeadID = generatedEmployeeId)
-                    applicationUseCases.createTeam(newTeam)
-                    val team = applicationUseCases.getTeamByName(teamState.value.teamName)
-                    Log.i("Team being created","Team ID: ${team?.teamID ?: -1}")
-                    uiState.value = uiState.value.copy(teamId = team?.teamID!!)
-                    if(team?.teamID != -1L) {
-                        applicationUseCases.updateTeamIDInEmployee(employeeId = generatedEmployeeId, teamId = team.teamID)
-                        Log.i("User updated","Team ID: $teamId")
-                    }
+                if(generatedEmployeeId != -1L) {
+                    applicationUseCases.updateTeamLeadIDInTeam(teamId = uiState.value.teamId, teamLeadId = generatedEmployeeId)
+                } else {
+                    Log.i("Employee ID","Employee ID: $generatedEmployeeId")
                 }
+                // Step 2: If a new team is being created, create the team with this employee as the team lead
+//                if (uiState.value.teamId == -1L) {  // Assuming -1 indicates a new team needs to be created
+//                    val newTeam = Team(teamName = teamState.value.teamName, teamLeadID = generatedEmployeeId)
+//                    val teamId = applicationUseCases.createTeam(newTeam)
+//                    val team = applicationUseCases.getTeamByName(teamState.value.teamName)
+//                    Log.i("Team being created","Team ID: ${team?.teamID ?: -1}, Team Name: ${team?.teamName}")
+//                    uiState.value = uiState.value.copy(teamId = teamId)
+//                    if(uiState.value.teamId != -1L) {
+//                        applicationUseCases.updateTeamIDInEmployee(employeeId = generatedEmployeeId, teamId = uiState.value.teamId)
+//                        Log.i("User updated","Team ID: $uiState.value.teamId")
+//                    }
+//                }
 
                 // create credentials for the employee
                 applicationUseCases.insertCredentials(employeeId = generatedEmployeeId, password = "password")

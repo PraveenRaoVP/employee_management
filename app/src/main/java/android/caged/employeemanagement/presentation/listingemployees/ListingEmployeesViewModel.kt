@@ -25,7 +25,7 @@ class ListingEmployeesViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            uiState.value = uiState.value.copy(teamMap = applicationUseCases.getAllTeamsAsMap())
+            getTeams()
             val currentUser = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!)
             if(currentUser?.position == Position.ADMIN) {
                 shouldDelete.value = true
@@ -39,6 +39,12 @@ class ListingEmployeesViewModel @Inject constructor(
                     currentUser.teamID
                 ))
             }
+        }
+    }
+
+    fun getTeams() {
+        viewModelScope.launch {
+            uiState.value = uiState.value.copy(teamMap = applicationUseCases.getAllTeamsAsMap())
         }
     }
 
@@ -95,6 +101,8 @@ class ListingEmployeesViewModel @Inject constructor(
 
                     applicationUseCases.deleteCredentials(event.employee.employeeId)
 
+                    getTeams()
+
                     // Refresh the results list after deletion
                     val updatedEmployeeList = if (uiState.value.filterByTeamID != -1L) {
                         applicationUseCases.getEmployeesByTeamID(uiState.value.filterByTeamID)
@@ -106,6 +114,8 @@ class ListingEmployeesViewModel @Inject constructor(
                     uiState.value = uiState.value.copy(results = updatedEmployeeList, employees = updatedEmployeeList)
                 }
             }
+
+            ListingEvent.GetTeams -> getTeams()
         }
     }
 }

@@ -8,9 +8,9 @@ import android.util.Log
 class TeamRepositoryImpl (
     private val teamDao: TeamDao
 ): TeamRepository {
-    override suspend fun insertTeam(team: Team) {
+    override suspend fun insertTeam(team: Team) : Long {
         Log.i("TeamRepositoryImpl", "insertTeam")
-        teamDao.insertTeam(team)
+        return teamDao.insertTeam(team)
     }
 
     override suspend fun getTeamByName(teamName: String): Team? {
@@ -36,5 +36,9 @@ class TeamRepositoryImpl (
 
     override suspend fun deleteTeamById(teamId: Long) {
         teamDao.deleteTeamById(teamId)
+    }
+
+    override suspend fun updateTeamLeadIdInTeam(teamId: Long, teamLeadId: Long) {
+        teamDao.updateTeamLeadIdInTeam(teamId, teamLeadId)
     }
 }

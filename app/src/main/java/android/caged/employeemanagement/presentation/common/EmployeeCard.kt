@@ -110,6 +110,7 @@ fun EmployeeCard(
                 .height(96.dp),
             verticalArrangement = Arrangement.SpaceAround
         ) {
+            Text(text = "Employee ID: ${employee.employeeId}", style = MaterialTheme.typography.bodySmall)
             Text(
                 text = employee.employeeName,
                 style = MaterialTheme.typography.bodyMedium,

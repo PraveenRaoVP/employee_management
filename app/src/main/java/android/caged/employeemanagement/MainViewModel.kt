@@ -10,6 +10,7 @@ import android.caged.employeemanagement.domain.repository.CredentialsRepository
 import android.caged.employeemanagement.domain.repository.EmployeeRepository
 import android.caged.employeemanagement.domain.repository.TeamRepository
 import android.caged.employeemanagement.domain.usecases.appentry.SaveCredentialsEntry
+import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -23,9 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     localUserManager: LocalUserManager,
-    employeeRepository: EmployeeRepository,
-    credentialsRepository: CredentialsRepository,
-    teamRepository: TeamRepository
+    applicationUseCases: ApplicationUseCases
 ) : ViewModel() {
 
     var startDestination by mutableStateOf(Screen.AppStartNavigation.route)
@@ -34,39 +33,8 @@ class MainViewModel @Inject constructor(
     init {
         // if the credentials are not null
         viewModelScope.launch {
-
-//            teamRepository.insertTeam(
-//                Team(
-//                    teamID = 1,
-//                    teamName = "Team A",
-//                    teamLeadID = 1
-//                )
-//            )
-//
-//            employeeRepository.insertEmployee(
-//                Employee(
-//                    employeeId = 0,
-//                    employeeName = "John Doe",
-//                    position = Position.ADMIN,
-//                    designation = "Software Engineer",
-//                    salary = 1000.0,
-//                    email = "johndoe@gmail.com",
-//                    teamID = 1,
-//                    phone = "1234567890",
-//                    profileImageUrl = "https://www.google.com"
-//                )
-//            )
-//
-//            credentialsRepository.insertCredentials(
-//                Credentials(
-//                    credentialID = 1,
-//                    employeeID = 1,
-//                    password = "password"
-//                )
-//            )
-
             localUserManager.credentials.collect { credentials ->
-                if (credentials.first != null && credentials.second != null) {
+                if (credentials.first != null && credentials.second != null ) {
                     startDestination = Screen.PostLogin.route
                 } else {
                     startDestination = Screen.AppStartNavigation.route
