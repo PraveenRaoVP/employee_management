@@ -32,6 +32,38 @@ class AppNavigatorViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             try {
+                applicationUseCases.insertEmployee(
+                    Employee(
+                        1,
+                        "Admin",
+                        Position.ADMIN,
+                        "Lead Admin",
+                        100000.0,
+                        "admin@gmail.com",
+                        1,
+                        "9974297323",
+                        "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"
+                    )
+                )
+
+                applicationUseCases.insertEmployee(
+                    Employee(
+                        2,
+                        "Manager",
+                        Position.MANAGER,
+                        "Admin Manager",
+                        1000000.0,
+                        "adminmanager@gmail.com",
+                        1,
+                        "6388170273",
+                        "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"
+                    )
+                )
+
+                applicationUseCases.createTeam(Team(1, "Admin", 2))
+
+                applicationUseCases.insertCredentials( 1, "admin")
+                applicationUseCases.insertCredentials( 2, "admin")
 
                 val teamMap = applicationUseCases.getAllTeamsAsMap()
                 for((key, value) in teamMap) {

@@ -3,12 +3,14 @@ package android.caged.employeemanagement.data.repository
 import android.caged.employeemanagement.data.local.TeamDao
 import android.caged.employeemanagement.domain.model.Team
 import android.caged.employeemanagement.domain.repository.TeamRepository
+import android.util.Log
 
 class TeamRepositoryImpl (
     private val teamDao: TeamDao
 ): TeamRepository {
-    override suspend fun insertTeam(team: Team) : Long {
-        return teamDao.insertTeam(team)
+    override suspend fun insertTeam(team: Team) {
+        Log.i("TeamRepositoryImpl", "insertTeam")
+        teamDao.insertTeam(team)
     }
 
     override suspend fun getTeamByName(teamName: String): Team? {

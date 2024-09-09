@@ -52,4 +52,11 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    fun onEmployeeDeleted(employee: Employee) {
+        // Filter out the deleted employee from recentEmployees
+        uiState.value = uiState.value.copy(
+            recentEmployees = uiState.value.recentEmployees.filter { it.employeeId != employee.employeeId }
+        )
+    }
 }

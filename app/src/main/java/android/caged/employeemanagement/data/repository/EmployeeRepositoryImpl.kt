@@ -4,6 +4,7 @@ import android.caged.employeemanagement.data.local.EmployeeDao
 import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.repository.EmployeeRepository
+import android.util.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
 
@@ -68,6 +69,7 @@ class EmployeeRepositoryImpl(
     }
 
     override suspend fun updateEmployeeTeam(employeeId: Long, teamID: Long) {
+        Log.i("EmployeeRepositoryImpl", "updateEmployeeTeam: $employeeId, $teamID")
         employeeDao.updateEmployeeTeam(teamID, employeeId)
     }
 }

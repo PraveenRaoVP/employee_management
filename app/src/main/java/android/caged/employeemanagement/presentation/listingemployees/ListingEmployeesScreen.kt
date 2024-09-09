@@ -4,7 +4,10 @@ import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.presentation.common.EmployeeList
 import android.caged.employeemanagement.presentation.common.SearchBar
 import android.caged.employeemanagement.presentation.common.TeamDropdownMenu
+import android.caged.employeemanagement.presentation.home.HomeState
 import android.caged.employeemanagement.presentation.home.HomeViewModel
+import android.caged.employeemanagement.presentation.navgraph.Screen
+import android.caged.employeemanagement.presentation.navgraph.navigateToPopUp
 import android.util.Log
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,7 +27,6 @@ fun ListingEmployeesScreen(
     onEvent: (ListingEvent) -> Unit,
     navigate: (Employee) -> Unit,
     shouldDelete: Boolean = false,
-    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     Column(
         modifier = Modifier
@@ -83,8 +85,6 @@ fun ListingEmployeesScreen(
             shouldDelete = shouldDelete,
             onDeleteClicked = { employee ->
                 onEvent(ListingEvent.DeleteEmployee(employee))
-                homeViewModel.refreshData()
-                homeViewModel.refreshData()
             }
         )
     }

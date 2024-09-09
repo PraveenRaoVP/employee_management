@@ -5,6 +5,7 @@ import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.model.Team
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.navgraph.Screen
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -121,9 +122,14 @@ class AddEmployeeViewModel @Inject constructor(
                 // Step 2: If a new team is being created, create the team with this employee as the team lead
                 if (uiState.value.teamId == -1L) {  // Assuming -1 indicates a new team needs to be created
                     val newTeam = Team(teamName = teamState.value.teamName, teamLeadID = generatedEmployeeId)
-                    teamId = applicationUseCases.createTeam(newTeam)
-                    uiState.value = uiState.value.copy(teamId = teamId)
-                    applicationUseCases.updateTeamIDInEmployee(employeeId = generatedEmployeeId, teamId = teamId)
+                    applicationUseCases.createTeam(newTeam)
+                    val team = applicationUseCases.getTeamByName(teamState.value.teamName)
+                    Log.i("Team being created","Team ID: ${team?.teamID ?: -1}")
+                    uiState.value = uiState.value.copy(teamId = team?.teamID!!)
+                    if(team?.teamID != -1L) {
+                        applicationUseCases.updateTeamIDInEmployee(employeeId = generatedEmployeeId, teamId = team.teamID)
+                        Log.i("User updated","Team ID: $teamId")
+                    }
                 }
 
                 // create credentials for the employee

@@ -202,13 +202,16 @@ fun AppNavigator(
             modifier = Modifier.padding(bottom = bottomPadding, top = topPadding)
         ) {
             composable(route = Screen.HomeRoute.route) {
-                val viewModel: HomeViewModel = hiltViewModel()
+                val homeViewModel: HomeViewModel = hiltViewModel()
                 HomeScreen(
                     navigateToPopUp = navigateToPopUp,
                     navigateTo = navigateTo,
                     currentUser = appNavigatorViewModel.currentUser.value,
-                    state = viewModel.uiState.value,
+                    state = homeViewModel.uiState.value,
                     navigate = { employee -> navigateToDetails(navController, employee.employeeId) },
+                    onRefetchData = {
+                        homeViewModel.refreshData()
+                    }
                 )
             }
 

@@ -33,6 +33,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,8 +56,13 @@ fun HomeScreen(
     navigateTo: (String) -> Unit,
     currentUser: Employee,
     state: HomeState,
-    navigate: (Employee) -> Unit
+    navigate: (Employee) -> Unit,
+    onRefetchData: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        onRefetchData()
+    }
+
     if (currentUser.position == Position.ADMIN) {
         AdminDashboardScreen(
             employeeCount = state.employeeCount,
@@ -64,7 +70,8 @@ fun HomeScreen(
             recentEmployees = state.recentEmployees,
             teamMap = state.teamMap,
             navigate = navigate,
-            state = state
+            state = state,
+            onRefetchData = onRefetchData
         )
     }
     if (currentUser.position == Position.MANAGER) {
@@ -88,7 +95,8 @@ fun AdminDashboardScreen(
     recentEmployees: List<Employee>,
     teamMap: Map<Long, Team>,
     navigate: (Employee) -> Unit,
-    state: HomeState
+    state: HomeState,
+    onRefetchData: () -> Unit
 ) {
     Surface {
         Column(
@@ -111,7 +119,8 @@ fun AdminDashboardScreen(
             EmployeeList(
                 employeeList = state.recentEmployees,
                 teamMap = teamMap,
-                onEmployeeClick = navigate
+                onEmployeeClick = navigate,
+                onDeleteClicked = { onRefetchData() }
             )
 
 //            BarChart(state = state, maxHeight = 240.dp)
