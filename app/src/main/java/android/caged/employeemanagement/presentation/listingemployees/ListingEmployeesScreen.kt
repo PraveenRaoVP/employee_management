@@ -72,10 +72,18 @@ fun ListingEmployeesScreen(
             }
         }
 
-        val filteredEmployeeList = if (state.filterByTeamID == -1L) {
-            state.employees // Show all employees if no team is selected
+//        val filteredEmployeeList = if (state.filterByTeamID == -1L) {
+//            state.employees // Show all employees if no team is selected
+//        } else {
+//            state.results // Filtered list based on team selection
+//        }
+
+        val filteredEmployeeList = if(state.filterByTeamID == -1L && state.searchQuery.isEmpty()) {
+            state.employees
+        } else if(state.filterByTeamID!=-1L) {
+            state.results
         } else {
-            state.results // Filtered list based on team selection
+            state.results
         }
 
         EmployeeList(

@@ -4,6 +4,7 @@ import android.caged.employeemanagement.domain.manager.LocalUserManager
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.home.HomeViewModel
+import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -50,8 +51,10 @@ class ListingEmployeesViewModel @Inject constructor(
                             uiState.value = uiState.value.copy(
                                 results = applicationUseCases.getEmployeesByTeamID(uiState.value.filterByTeamID)
                             )
+                            Log.i("ListingEmployeesViewModel", "Search query empty: ${uiState.value.results}")
                         } else {
                             uiState.value = uiState.value.copy(results = applicationUseCases.getAllEmployees())
+                            Log.i("ListingEmployeesViewModel", "Search query empty: ${uiState.value.results}")
                         }
                     } else {
                         // Search based on query
@@ -59,8 +62,10 @@ class ListingEmployeesViewModel @Inject constructor(
                             uiState.value = uiState.value.copy(
                                 results = applicationUseCases.searchEmployeeByTeam(uiState.value.searchQuery, uiState.value.filterByTeamID)
                             )
+                            Log.i("ListingEmployeesViewModel", "Search query not empty: ${uiState.value.results}")
                         } else {
                             uiState.value = uiState.value.copy(results = applicationUseCases.searchEmployee(uiState.value.searchQuery))
+                            Log.i("ListingEmployeesViewModel", "Search query not empty: ${uiState.value.results}")
                         }
                     }
                 }
@@ -76,6 +81,7 @@ class ListingEmployeesViewModel @Inject constructor(
 
             is ListingEvent.UpdateSearchQuery -> {
                 uiState.value = uiState.value.copy(searchQuery = event.searchQuery)
+                Log.i("ListingEmployeesViewModel", "Search query updated: ${event.searchQuery}")
             }
 
             is ListingEvent.DeleteEmployee -> {
