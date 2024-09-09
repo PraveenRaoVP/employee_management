@@ -13,8 +13,11 @@ import android.util.Log
 import android.widget.ImageView
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -26,6 +29,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Button
@@ -37,6 +41,7 @@ import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -48,20 +53,27 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.mimeTypes
+import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
 import com.google.accompanist.permissions.rememberPermissionState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun AddEmployeeScreen(
     state: AddEmployeeState,
@@ -118,157 +130,201 @@ fun AddEmployeeScreen(
 
         val topPadding = innerPadding.calculateTopPadding()
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(top = topPadding),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Employee Name
-            Spacer(modifier = Modifier.height(8.dp))
-            TextField(
-                value = state.employeeName,
-                onValueChange = { onEvent(AddEmployeeEvent.EmployeeNameChanged(it), { _, _ -> }) },
-                label = { Text("Employee Name") }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
+        val scrollState = rememberScrollState()
 
-            // Position Dropdown
-            Row {
-                Text(text = "Position: ${state.position.name}")
-                PositionDropdownMenu(
-                    selectedPosition = state.position,
-                    onPositionSelected = { onEvent(AddEmployeeEvent.PositionChanged(it), { _, _ -> }) }
-                )
-            }
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = state.designation,
-                onValueChange = { onEvent(AddEmployeeEvent.DesignationChanged(it), { _, _ -> }) },
-                label = { Text("Designation") }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = state.salary.toString(),
-                onValueChange = { onEvent(AddEmployeeEvent.SalaryChanged(it), { _, _ -> }) },
-                label = { Text("Salary") }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = state.email,
-                onValueChange = { onEvent(AddEmployeeEvent.EmailChanged(it), { _, _ -> }) },
-                label = { Text("Email") }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            TextField(
-                value = state.phone,
-                onValueChange = { onEvent(AddEmployeeEvent.PhoneChanged(it), { _, _ -> }) },
-                label = { Text("Phone") }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Team Dropdown
-
-            var isCreateTeam = false
-
-            if(state.position == Position.MANAGER || state.position == Position.ADMIN) {
-                isCreateTeam = true
-            }
-
-            Row {
-                Text(text = "${if(!teamState.showCreateTeam) "Team Name: ${teamState.teamName}" else ' '}")
-                TeamDropdownMenu(
-                    teams = teams,
-                    selectedTeam = teams.find { it.teamID == state.teamId },
-                    teamName = teamState.teamName,
-                    onTeamSelected = { onEvent(AddEmployeeEvent.TeamChanged(it.teamID), { _, _ -> }) },
-                    onTeamNameChanged = { onEvent(AddEmployeeEvent.TeamNameChanged(it), { _, _ -> }) },
-                    onCreateNewTeam = {
-                        onEvent(AddEmployeeEvent.TeamChanged(teamState.teamLeadId), { _, _ -> })
-                    },
-                    showIsCreateTeam = isCreateTeam,
-                    onEvent = onEvent
-                )
-            }
-
-            // if create new team is clicked, show a textfield asking for new team's name
-            if (teamState.showCreateTeam) {
-                TextField(
-                    value = teamState.teamName,
-                    onValueChange = { onEvent(AddEmployeeEvent.TeamNameChanged(it), { _, _ -> }) },
-                    label = { Text("Team Name") }
-                )
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Photo picker
-            Box(
-                modifier = Modifier.border(
-                    width = 1.dp,
-                    color = Color.White,
-                    shape = RoundedCornerShape(25.dp)
-                )
+        Surface {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = topPadding)
+                    .verticalScroll(scrollState),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                AndroidView(
-                    factory = { context ->
-                        ImageView(context).apply {
-                            scaleType = ImageView.ScaleType.CENTER_CROP
-                            Glide.with(context)
-                                .load(state.profileImageUrl)
-                                .circleCrop()
-                                .listener(object : RequestListener<Drawable> {
-                                    override fun onResourceReady(
-                                        resource: Drawable,
-                                        model: Any,
-                                        target: Target<Drawable>?,
-                                        dataSource: DataSource,
-                                        isFirstResource: Boolean
-                                    ): Boolean {
-                                        return false
-                                    }
-
-                                    override fun onLoadFailed(
-                                        e: GlideException?,
-                                        model: Any?,
-                                        target: Target<Drawable>,
-                                        isFirstResource: Boolean
-                                    ): Boolean {
-                                        Log.i("Glide", "Image load failed", e)
-                                        return false
-                                    }
-                                })
-                                .into(this)
-                        }
+                // Employee Name
+                Spacer(modifier = Modifier.height(8.dp))
+                TextField(
+                    value = state.employeeName,
+                    onValueChange = {
+                        onEvent(
+                            AddEmployeeEvent.EmployeeNameChanged(it),
+                            { _, _ -> })
                     },
-                    modifier = Modifier
-                        .height(128.dp)
-                        .clickable {
-                            // Trigger the image picker when the image is clicked
-                            imagePickerLauncher.launch("image/*")
-                        }
-                        .border(
-                            width = 1.dp,
-                            color = Color.White,
-                            shape = RoundedCornerShape(50.dp)
-                        )
+                    label = { Text("Employee Name") }
                 )
-            }
+                Spacer(modifier = Modifier.height(8.dp))
 
-            Button(onClick = {
-                onEvent(AddEmployeeEvent.ClearError, { _, _ -> })
-                onEvent(AddEmployeeEvent.CreateEmployee, navigateToPopUp)
-            }) {
-                Text("Create Employee")
-            }
+                // Position Dropdown
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(text = "Position: ${state.position.name}")
+                    PositionDropdownMenu(
+                        selectedPosition = state.position,
+                        onPositionSelected = {
+                            onEvent(
+                                AddEmployeeEvent.PositionChanged(it),
+                                { _, _ -> })
+                        }
+                    )
+                }
+                Spacer(modifier = Modifier.height(8.dp))
 
-            if (state.error.isNotBlank()) {
-                Text(state.error)
+                TextField(
+                    value = state.designation,
+                    onValueChange = {
+                        onEvent(
+                            AddEmployeeEvent.DesignationChanged(it),
+                            { _, _ -> })
+                    },
+                    label = { Text("Designation") }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TextField(
+                    value = state.salary.toString(),
+                    onValueChange = { onEvent(AddEmployeeEvent.SalaryChanged(it), { _, _ -> }) },
+                    label = { Text("Salary") }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TextField(
+                    value = state.email,
+                    onValueChange = { onEvent(AddEmployeeEvent.EmailChanged(it), { _, _ -> }) },
+                    label = { Text("Email") }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                TextField(
+                    value = state.phone,
+                    onValueChange = { onEvent(AddEmployeeEvent.PhoneChanged(it), { _, _ -> }) },
+                    label = { Text("Phone") }
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Team Dropdown
+
+                var isCreateTeam = false
+
+                if (state.position == Position.MANAGER || state.position == Position.ADMIN) {
+                    isCreateTeam = true
+                }
+
+                Row {
+                    Text(text = "${if (!teamState.showCreateTeam) "Team Name: ${teamState.teamName}" else ' '}")
+                    TeamDropdownMenu(
+                        teams = teams,
+                        selectedTeam = teams.find { it.teamID == state.teamId },
+                        teamName = teamState.teamName,
+                        onTeamSelected = {
+                            onEvent(
+                                AddEmployeeEvent.TeamChanged(it.teamID),
+                                { _, _ -> })
+                        },
+                        onTeamNameChanged = {
+                            onEvent(
+                                AddEmployeeEvent.TeamNameChanged(it),
+                                { _, _ -> })
+                        },
+                        onCreateNewTeam = {
+                            onEvent(AddEmployeeEvent.TeamChanged(teamState.teamLeadId), { _, _ -> })
+                        },
+                        showIsCreateTeam = isCreateTeam,
+                        onEvent = onEvent
+                    )
+                }
+
+                // if create new team is clicked, show a textfield asking for new team's name
+                if (teamState.showCreateTeam) {
+                    TextField(
+                        value = teamState.teamName,
+                        onValueChange = {
+                            onEvent(
+                                AddEmployeeEvent.TeamNameChanged(it),
+                                { _, _ -> })
+                        },
+                        label = { Text("Team Name") }
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                // Photo picker
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .clickable {
+                            coroutineScope.launch {
+                                if (readStoragePermissionState.status.isGranted) {
+                                    coroutineScope.launch {
+                                        getContent.launch("image/*")
+                                    }
+                                } else {
+                                    readStoragePermissionState.launchPermissionRequest()
+                                }
+                            }
+                        }
+                        .dragAndDropTarget(
+                            shouldStartDragAndDrop = { startEvent: DragAndDropEvent ->
+                                startEvent
+                                    .mimeTypes()
+                                    .any { it.startsWith("image/") }
+                            },
+                            target = object : DragAndDropTarget {
+                                override fun onDrop(event: DragAndDropEvent): Boolean {
+                                    val clipData = event.toAndroidDragEvent().clipData
+                                    clipData?.getItemAt(0)?.uri?.let {
+                                        if (readStoragePermissionState.status.isGranted) {
+                                            // Assuming permission is granted
+                                            onEvent(
+                                                AddEmployeeEvent.PhotoImageUrlChanged(it.toString()),
+                                                { _, _ -> })
+                                        } else {
+                                            readStoragePermissionState.launchPermissionRequest()
+                                        }
+                                    }
+                                    return true
+                                }
+
+                                override fun onStarted(event: DragAndDropEvent) {
+                                    super.onStarted(event)
+                                }
+
+                                override fun onEnded(event: DragAndDropEvent) {
+                                    super.onEnded(event)
+                                }
+                            }
+                        ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (state.profileImageUrl.isNotBlank()) {
+                        Log.i(
+                            "AddCustomArticleScreen",
+                            "AddCustomArticleScreen: ${state.profileImageUrl}"
+                        )
+                        Image(
+                            painter = rememberAsyncImagePainter(
+                                model = ImageRequest.Builder(context)
+                                    .data(Uri.parse(state.profileImageUrl))
+                                    .build()
+                            ),
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Text("Click to Select Image or Drag and Drop Here")
+                    }
+                }
+
+                Button(onClick = { onEvent(AddEmployeeEvent.CreateEmployee, navigateToPopUp) }) {
+                    Text("Create Employee")
+                }
+                if(state.error.isNotBlank()) {
+                    Text(state.error)
+                }
             }
         }
     }

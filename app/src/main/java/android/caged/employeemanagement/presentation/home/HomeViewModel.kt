@@ -35,6 +35,13 @@ class HomeViewModel @Inject constructor(
                     teamCount = applicationUseCases.getTeamCount(),
                     recentEmployees = applicationUseCases.getRecentEmployees()
                 )
+
+                for((teamID, team) in uiState.value.teamMap) {
+                    uiState.value = uiState.value.copy(
+                        employeeCountPerTeam = uiState.value.employeeCountPerTeam + (team to applicationUseCases.getEmployeeCountByTeam(teamID))
+                    )
+                }
+
             } else if (currentEmployee.position == Position.MANAGER) {
                 uiState.value = uiState.value.copy(
                     teamMap = applicationUseCases.getAllTeamsAsMap(),

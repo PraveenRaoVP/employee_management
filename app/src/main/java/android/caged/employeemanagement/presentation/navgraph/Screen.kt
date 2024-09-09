@@ -1,6 +1,8 @@
 package android.caged.employeemanagement.presentation.navgraph
 
 sealed class Screen(val route: String) {
+    data object ChangePassword : Screen("change_password")
+
     data object AppStartNavigation : Screen("app_start_navigation")
     data object LoginRoute : Screen("login")
     data object PostLogin : Screen("post_login")

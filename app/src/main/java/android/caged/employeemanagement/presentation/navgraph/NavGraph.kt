@@ -4,6 +4,8 @@ import android.caged.employeemanagement.presentation.addemployee.AddEmployeeScre
 import android.caged.employeemanagement.presentation.addemployee.AddEmployeeViewModel
 import android.caged.employeemanagement.presentation.auth.login.LoginScreen
 import android.caged.employeemanagement.presentation.auth.login.LoginViewModel
+import android.caged.employeemanagement.presentation.changepassword.ChangePasswordScreen
+import android.caged.employeemanagement.presentation.changepassword.ChangePasswordViewModel
 import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsViewModel
 import android.caged.employeemanagement.presentation.main.AppNavigator
 import android.caged.employeemanagement.presentation.main.AppNavigatorViewModel
@@ -86,6 +88,22 @@ fun NavGraph(startDestination: String) {
                             navController
                         )
                     }
+                )
+            }
+
+            composable(route = Screen.ChangePassword.route) {
+                val viewModel: ChangePasswordViewModel = hiltViewModel()
+                ChangePasswordScreen(
+                    navigateToPopUp = { route, popUp ->
+                        navigateToPopUp(
+                            route,
+                            popUp,
+                            navController
+                        )
+                    },
+                    onBack = { navController.popBackStack() },
+                    state = viewModel.uiState.value,
+                    onEvent = viewModel::onEvent
                 )
             }
         }

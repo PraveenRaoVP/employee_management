@@ -112,4 +112,8 @@ dependencies {
 
 //    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
     implementation("com.google.accompanist:accompanist-permissions:0.30.1")
+    implementation(kotlin("script-runtime"))
+
+    implementation("com.github.madrapps:plot:0.1.1")
+
 }

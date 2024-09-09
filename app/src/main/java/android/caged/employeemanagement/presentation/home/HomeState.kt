@@ -7,5 +7,6 @@ data class HomeState(
     val employeeCount: Int = 0,
     val teamCount: Int = 0,
     val recentEmployees: List<Employee> = listOf(),
-    val teamMap: Map<Long, Team> = mapOf()
+    val teamMap: Map<Long, Team> = mapOf(),
+    val employeeCountPerTeam : Map<Team, Int> = mapOf()
 )

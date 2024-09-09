@@ -72,9 +72,19 @@ fun ProfilePageScreen(
                 ImageView(context).apply {
                     scaleType = ImageView.ScaleType.CENTER_CROP
                     Glide.with(context)
-                        .load(state.profileImageUrl)
+                        .load(user.profileImageUrl)
                         .circleCrop()
                         .listener(object : RequestListener<Drawable> {
+                            override fun onResourceReady(
+                                resource: Drawable,
+                                model: Any,
+                                target: com.bumptech.glide.request.target.Target<Drawable>?,
+                                dataSource: DataSource,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                return false
+                            }
+
                             override fun onLoadFailed(
                                 e: GlideException?,
                                 model: Any?,
@@ -84,26 +94,17 @@ fun ProfilePageScreen(
                                 Log.e("Glide", "Image load failed", e)
                                 return false
                             }
-
-                            override fun onResourceReady(
-                                resource: Drawable,
-                                model: Any,
-                                target: Target<Drawable>?,
-                                dataSource: DataSource,
-                                isFirstResource: Boolean
-                            ): Boolean {
-                                return false // Allow Glide to display the image
-                            }
-
                         })
                         .into(this)
                 }
             },
             modifier = Modifier
                 .height(128.dp)
-                .clickable {
-                    imagePickerLauncher.launch("image/*")
-                }
+                .border(
+                    width = 1.dp,
+                    color = Color.White,
+                    shape = RoundedCornerShape(50.dp)
+                )
         )
 
         Spacer(modifier = Modifier.height(16.dp))

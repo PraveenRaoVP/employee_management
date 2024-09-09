@@ -93,7 +93,7 @@ class AddEmployeeViewModel @Inject constructor(
 //    }
 
     fun createEmployee(navigateToPopUp: (String, String) -> Unit) {
-
+        uiState.value = uiState.value.copy(error = "")
         if(uiState.value.employeeName.isEmpty() || uiState.value.designation.isEmpty() || uiState.value.email.isEmpty() || uiState.value.phone.isEmpty() || uiState.value.profileImageUrl.isEmpty()) {
             uiState.value = uiState.value.copy(error = "Please fill all the fields")
             return
