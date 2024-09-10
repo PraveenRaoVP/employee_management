@@ -18,8 +18,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.bumptech.glide.Glide
 import kotlinx.coroutines.selects.select
 
 @Composable
@@ -29,10 +31,13 @@ fun ListingEmployeesScreen(
     navigate: (Employee) -> Unit,
     shouldDelete: Boolean = false,
 ) {
+    val context = LocalContext.current
     LaunchedEffect(Unit) {
         // get teams list
         onEvent(ListingEvent.GetTeams)
+        Glide.get(context).clearMemory()
     }
+
 
     Column(
         modifier = Modifier
@@ -99,6 +104,7 @@ fun ListingEmployeesScreen(
             shouldDelete = shouldDelete,
             onDeleteClicked = { employee ->
                 onEvent(ListingEvent.DeleteEmployee(employee))
+                Glide.get(context).clearMemory()
             }
         )
     }

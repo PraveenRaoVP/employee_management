@@ -45,6 +45,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.bumptech.glide.Glide
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
 import com.madrapps.plot.line.LinePlot
@@ -59,8 +60,11 @@ fun HomeScreen(
     navigate: (Employee) -> Unit,
     onRefetchData: () -> Unit
 ) {
+    val context = LocalContext.current
+
     LaunchedEffect(Unit) {
         onRefetchData()
+        Glide.get(context).clearMemory()
     }
 
     if (currentUser.position == Position.ADMIN) {

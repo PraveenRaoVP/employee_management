@@ -203,11 +203,12 @@ fun AppNavigator(
         ) {
             composable(route = Screen.HomeRoute.route) {
                 val homeViewModel: HomeViewModel = hiltViewModel()
+                val state by remember { homeViewModel.uiState }
                 HomeScreen(
                     navigateToPopUp = navigateToPopUp,
                     navigateTo = navigateTo,
                     currentUser = appNavigatorViewModel.currentUser.value,
-                    state = homeViewModel.uiState.value,
+                    state = state,
                     navigate = { employee -> navigateToDetails(navController, employee.employeeId) },
                     onRefetchData = {
                         homeViewModel.refreshData()
@@ -227,8 +228,9 @@ fun AppNavigator(
 
             composable(route = Screen.ListingEmployees.route) {
                 val viewModel: ListingEmployeesViewModel = hiltViewModel()
+                val state by remember { viewModel.uiState }
                 ListingEmployeesScreen(
-                    state = viewModel.uiState.value,
+                    state = state,
                     onEvent = viewModel::onEvent,
                     navigate = { employee -> navigateToDetails(navController, employee.employeeId) },
                     shouldDelete = viewModel.shouldDelete.value,

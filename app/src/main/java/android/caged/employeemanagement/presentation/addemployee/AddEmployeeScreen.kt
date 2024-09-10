@@ -249,7 +249,8 @@ fun AddEmployeeScreen(
                                 AddEmployeeEvent.TeamNameChanged(it),
                                 { _, _ -> })
                         },
-                        label = { Text("Team Name") }
+                        label = { Text("Team Name") },
+                        readOnly = teamState.disableTeamCreateButton
                     )
                     if (!teamState.disableTeamCreateButton) {
 

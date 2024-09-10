@@ -17,9 +17,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import android.caged.employeemanagement.ui.theme.EmployeeManagementTheme
 import android.content.pm.PackageManager
+import android.util.DisplayMetrics
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -34,6 +36,11 @@ class MainActivity : ComponentActivity() {
 
         // Check and request permissions at the start
         checkAndRequestPermissions()
+
+        installSplashScreen().apply {
+            setKeepOnScreenCondition { mainViewModel.splashCondition }
+        }
+        enableEdgeToEdge()
 
         setContent {
             EmployeeManagementTheme {
