@@ -344,8 +344,5 @@ fun EmployeeHomeScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Welcome ${currentUser.employeeName}!")
-        Button(onClick = { navigateTo(Screen.ProfileRoute.route) }) {
-            Text("Profile")
-        }
     }
 }
