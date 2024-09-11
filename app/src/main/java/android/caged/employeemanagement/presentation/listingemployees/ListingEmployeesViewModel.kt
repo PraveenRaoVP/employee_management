@@ -10,6 +10,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bumptech.glide.Glide
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,85 +19,78 @@ import javax.inject.Inject
 @HiltViewModel
 class ListingEmployeesViewModel @Inject constructor(
     private val applicationUseCases: ApplicationUseCases,
-    private val localUserManager: LocalUserManager,
+    private val localUserManager: LocalUserManager
 ) : ViewModel() {
 
-    val uiState = mutableStateOf(ListingState())
+    // Replace mutableStateOf with MutableStateFlow
+    private val _uiState = MutableStateFlow(ListingState())
+    val uiState: StateFlow<ListingState> get() = _uiState
 
-    val shouldDelete = mutableStateOf(false)
+    private val _shouldDelete = MutableStateFlow(false)
+    val shouldDelete: StateFlow<Boolean> get() = _shouldDelete
 
     init {
         viewModelScope.launch {
             getTeams()
             val currentUser = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!)
-            if(currentUser?.position == Position.ADMIN) {
-                shouldDelete.value = true
-                uiState.value = uiState.value.copy(results = applicationUseCases.getAllEmployees())
-                uiState.value = uiState.value.copy(employees = applicationUseCases.getAllEmployees())
-            } else if(currentUser?.position == Position.MANAGER) {
-                uiState.value = uiState.value.copy(results = applicationUseCases.getEmployeesByTeamID(
-                    currentUser.teamID
-                ))
-                uiState.value = uiState.value.copy(employees = applicationUseCases.getEmployeesByTeamID(
-                    currentUser.teamID
-                ))
+            if (currentUser?.position == Position.ADMIN) {
+                _shouldDelete.value = true
+                _uiState.value = _uiState.value.copy(results = applicationUseCases.getAllEmployees())
+                _uiState.value = _uiState.value.copy(employees = applicationUseCases.getAllEmployees())
+            } else if (currentUser?.position == Position.MANAGER) {
+                _uiState.value = _uiState.value.copy(results = applicationUseCases.getEmployeesByTeamID(currentUser.teamID))
+                _uiState.value = _uiState.value.copy(employees = applicationUseCases.getEmployeesByTeamID(currentUser.teamID))
             }
         }
     }
 
     fun getTeams() {
         viewModelScope.launch {
-            uiState.value = uiState.value.copy(teamMap = applicationUseCases.getAllTeamsAsMap())
+            _uiState.value = _uiState.value.copy(teamMap = applicationUseCases.getAllTeamsAsMap())
         }
     }
 
     fun onEvent(event: ListingEvent) {
-        when(event) {
+        when (event) {
             is ListingEvent.Search -> {
                 viewModelScope.launch {
                     if (event.query.isEmpty()) {
-                        if (uiState.value.filterByTeamID != -1L) {
-                            uiState.value = uiState.value.copy(
-                                results = applicationUseCases.getEmployeesByTeamID(uiState.value.filterByTeamID)
+                        if (_uiState.value.filterByTeamID != -1L) {
+                            _uiState.value = _uiState.value.copy(
+                                results = applicationUseCases.getEmployeesByTeamID(_uiState.value.filterByTeamID)
                             )
-                            Log.i("ListingEmployeesViewModel", "Search query empty: ${uiState.value.results}")
                         } else {
-                            uiState.value = uiState.value.copy(results = applicationUseCases.getAllEmployees())
-                            Log.i("ListingEmployeesViewModel", "Search query empty: ${uiState.value.results}")
+                            _uiState.value = _uiState.value.copy(results = applicationUseCases.getAllEmployees())
                         }
                     } else {
-                        // Search based on query
-                        if (uiState.value.filterByTeamID != -1L) {
-                            uiState.value = uiState.value.copy(
-                                results = applicationUseCases.searchEmployeeByTeam(uiState.value.searchQuery, uiState.value.filterByTeamID)
+                        if (_uiState.value.filterByTeamID != -1L) {
+                            _uiState.value = _uiState.value.copy(
+                                results = applicationUseCases.searchEmployeeByTeam(_uiState.value.searchQuery, _uiState.value.filterByTeamID)
                             )
-                            Log.i("ListingEmployeesViewModel", "Search query not empty: ${uiState.value.results}")
                         } else {
-                            uiState.value = uiState.value.copy(results = applicationUseCases.searchEmployee(uiState.value.searchQuery))
-                            Log.i("ListingEmployeesViewModel", "Search query not empty: ${uiState.value.results}")
+                            _uiState.value = _uiState.value.copy(results = applicationUseCases.searchEmployee(_uiState.value.searchQuery))
                         }
                     }
                 }
             }
             is ListingEvent.FilterTeam -> {
                 viewModelScope.launch {
-                    uiState.value = uiState.value.copy(
-                        results = applicationUseCases.searchEmployeeByTeam(uiState.value.searchQuery, event.teamID),
+                    _uiState.value = _uiState.value.copy(
+                        results = applicationUseCases.searchEmployeeByTeam(_uiState.value.searchQuery, event.teamID),
                         filterByTeamID = event.teamID
                     )
                 }
             }
 
             is ListingEvent.UpdateSearchQuery -> {
-                uiState.value = uiState.value.copy(searchQuery = event.searchQuery)
-                Log.i("ListingEmployeesViewModel", "Search query updated: ${event.searchQuery}")
+                _uiState.value = _uiState.value.copy(searchQuery = event.searchQuery)
             }
 
             is ListingEvent.DeleteEmployee -> {
                 viewModelScope.launch {
                     applicationUseCases.deleteEmployeeByID(event.employee.employeeId)
 
-                    if(applicationUseCases.getEmployeeCountByTeam(event.employee.teamID) == 0 ) {
+                    if (applicationUseCases.getEmployeeCountByTeam(event.employee.teamID) == 0) {
                         // delete team if there are no members present
                         applicationUseCases.deleteTeam(event.employee.teamID)
                     }
@@ -105,14 +100,14 @@ class ListingEmployeesViewModel @Inject constructor(
                     getTeams()
 
                     // Refresh the results list after deletion
-                    val updatedEmployeeList = if (uiState.value.filterByTeamID != -1L) {
-                        applicationUseCases.getEmployeesByTeamID(uiState.value.filterByTeamID)
+                    val updatedEmployeeList = if (_uiState.value.filterByTeamID != -1L) {
+                        applicationUseCases.getEmployeesByTeamID(_uiState.value.filterByTeamID)
                     } else {
                         applicationUseCases.getAllEmployees()
                     }
 
                     // Update the UI state with the new list
-                    uiState.value = uiState.value.copy(results = updatedEmployeeList, employees = updatedEmployeeList)
+                    _uiState.value = _uiState.value.copy(results = updatedEmployeeList, employees = updatedEmployeeList)
                 }
             }
 

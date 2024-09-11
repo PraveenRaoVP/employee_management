@@ -26,6 +26,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -203,7 +204,7 @@ fun AppNavigator(
         ) {
             composable(route = Screen.HomeRoute.route) {
                 val homeViewModel: HomeViewModel = hiltViewModel()
-                val state by remember { homeViewModel.uiState }
+                val state by homeViewModel.uiState.collectAsState()
                 HomeScreen(
                     navigateToPopUp = navigateToPopUp,
                     navigateTo = navigateTo,
@@ -228,7 +229,7 @@ fun AppNavigator(
 
             composable(route = Screen.ListingEmployees.route) {
                 val viewModel: ListingEmployeesViewModel = hiltViewModel()
-                val state by remember { viewModel.uiState }
+                val state by viewModel.uiState.collectAsState()
                 ListingEmployeesScreen(
                     state = state,
                     onEvent = viewModel::onEvent,

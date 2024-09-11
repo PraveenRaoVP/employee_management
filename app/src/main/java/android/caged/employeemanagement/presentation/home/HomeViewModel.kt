@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -17,8 +19,11 @@ class HomeViewModel @Inject constructor(
     private val localUserManager: LocalUserManager,
     private val applicationUseCases: ApplicationUseCases
 ) : ViewModel() {
-    val uiState = mutableStateOf(HomeState())
+//    val uiState = mutableStateOf(HomeState())
     // get recent employees, get employee count, get team count
+
+    private val _uiState: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
+    val uiState: StateFlow<HomeState> get() = _uiState
 
 
     init {
@@ -29,7 +34,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val currentEmployee: Employee = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!)!!
             if (currentEmployee.position == Position.ADMIN) {
-                uiState.value = uiState.value.copy(
+                _uiState.value = _uiState.value.copy(
                     teamMap = applicationUseCases.getAllTeamsAsMap(),
                     employeeCount = applicationUseCases.getEmployeeCount(),
                     teamCount = applicationUseCases.getTeamCount(),
@@ -37,13 +42,13 @@ class HomeViewModel @Inject constructor(
                 )
 
                 for((teamID, team) in uiState.value.teamMap) {
-                    uiState.value = uiState.value.copy(
+                    _uiState.value = _uiState.value.copy(
                         employeeCountPerTeam = uiState.value.employeeCountPerTeam + (team to applicationUseCases.getEmployeeCountByTeam(teamID))
                     )
                 }
 
             } else if (currentEmployee.position == Position.MANAGER) {
-                uiState.value = uiState.value.copy(
+                _uiState.value = _uiState.value.copy(
                     teamMap = applicationUseCases.getAllTeamsAsMap(),
                     employeeCount = applicationUseCases.getEmployeeCountByTeam(currentEmployee.teamID!!),
                     teamCount = 1,
@@ -55,7 +60,7 @@ class HomeViewModel @Inject constructor(
 
     fun onEmployeeDeleted(employee: Employee) {
         // Filter out the deleted employee from recentEmployees
-        uiState.value = uiState.value.copy(
+        _uiState.value = _uiState.value.copy(
             recentEmployees = uiState.value.recentEmployees.filter { it.employeeId != employee.employeeId }
         )
     }
