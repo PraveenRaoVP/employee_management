@@ -4,6 +4,7 @@ import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.model.Team
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
+import android.caged.employeemanagement.ext.isValidEmail
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -97,6 +98,16 @@ class AddEmployeeViewModel @Inject constructor(
         uiState.value = uiState.value.copy(error = "")
         if(uiState.value.employeeName.isEmpty() || uiState.value.designation.isEmpty() || uiState.value.email.isEmpty() || uiState.value.phone.isEmpty() || uiState.value.profileImageUrl.isEmpty()) {
             uiState.value = uiState.value.copy(error = "Please fill all the fields")
+            return
+        }
+
+        if(!uiState.value.email.isValidEmail()) {
+            uiState.value = uiState.value.copy(error = "Please enter a valid email")
+            return
+        }
+
+        if(!uiState.value.phone.matches(Regex("^[0-9]{10}$"))) {
+            uiState.value = uiState.value.copy(error = "Please enter a valid phone number")
             return
         }
 

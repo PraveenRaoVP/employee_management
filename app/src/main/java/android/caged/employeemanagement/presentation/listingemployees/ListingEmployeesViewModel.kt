@@ -32,14 +32,14 @@ class ListingEmployeesViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getTeams()
-            val currentUser = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!)
+            val currentUser = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!).first()
             if (currentUser?.position == Position.ADMIN) {
                 _shouldDelete.value = true
-                _uiState.value = _uiState.value.copy(results = applicationUseCases.getAllEmployees())
-                _uiState.value = _uiState.value.copy(employees = applicationUseCases.getAllEmployees())
+                _uiState.value = _uiState.value.copy(results = applicationUseCases.getAllEmployees().first())
+                _uiState.value = _uiState.value.copy(employees = applicationUseCases.getAllEmployees().first())
             } else if (currentUser?.position == Position.MANAGER) {
-                _uiState.value = _uiState.value.copy(results = applicationUseCases.getEmployeesByTeamID(currentUser.teamID))
-                _uiState.value = _uiState.value.copy(employees = applicationUseCases.getEmployeesByTeamID(currentUser.teamID))
+                _uiState.value = _uiState.value.copy(results = applicationUseCases.getEmployeesByTeamID(currentUser.teamID).first())
+                _uiState.value = _uiState.value.copy(employees = applicationUseCases.getEmployeesByTeamID(currentUser.teamID).first())
             }
         }
     }
@@ -56,19 +56,27 @@ class ListingEmployeesViewModel @Inject constructor(
                 viewModelScope.launch {
                     if (event.query.isEmpty()) {
                         if (_uiState.value.filterByTeamID != -1L) {
-                            _uiState.value = _uiState.value.copy(
-                                results = applicationUseCases.getEmployeesByTeamID(_uiState.value.filterByTeamID)
-                            )
+                            applicationUseCases.getEmployeesByTeamID(_uiState.value.filterByTeamID).collect {
+                                _uiState.value = _uiState.value.copy(results = it)
+                            }
+
                         } else {
-                            _uiState.value = _uiState.value.copy(results = applicationUseCases.getAllEmployees())
+                            applicationUseCases.getAllEmployees().collect {
+                                _uiState.value = _uiState.value.copy(results = it)
+                            }
                         }
                     } else {
                         if (_uiState.value.filterByTeamID != -1L) {
-                            _uiState.value = _uiState.value.copy(
-                                results = applicationUseCases.searchEmployeeByTeam(_uiState.value.searchQuery, _uiState.value.filterByTeamID)
-                            )
+                            applicationUseCases.searchEmployeeByTeam(_uiState.value.searchQuery, _uiState.value.filterByTeamID).collect {
+                                _uiState.value = _uiState.value.copy(results = it)
+                            }
+//                            _uiState.value = _uiState.value.copy(results = applicationUseCases.searchEmployeeByTeam(_uiState.value.searchQuery, _uiState.value.filterByTeamID))
+
                         } else {
-                            _uiState.value = _uiState.value.copy(results = applicationUseCases.searchEmployee(_uiState.value.searchQuery))
+                            applicationUseCases.searchEmployee(_uiState.value.searchQuery).collect {
+                                _uiState.value = _uiState.value.copy(results = it)
+                            }
+//                            _uiState.value = _uiState.value.copy(results = applicationUseCases.searchEmployee(_uiState.value.searchQuery))
                         }
                     }
                 }
@@ -76,7 +84,7 @@ class ListingEmployeesViewModel @Inject constructor(
             is ListingEvent.FilterTeam -> {
                 viewModelScope.launch {
                     _uiState.value = _uiState.value.copy(
-                        results = applicationUseCases.searchEmployeeByTeam(_uiState.value.searchQuery, event.teamID),
+                        results = applicationUseCases.searchEmployeeByTeam(_uiState.value.searchQuery, event.teamID).first(),
                         filterByTeamID = event.teamID
                     )
                 }
@@ -107,7 +115,10 @@ class ListingEmployeesViewModel @Inject constructor(
                     }
 
                     // Update the UI state with the new list
-                    _uiState.value = _uiState.value.copy(results = updatedEmployeeList, employees = updatedEmployeeList)
+                    updatedEmployeeList.collect {
+                        _uiState.value = _uiState.value.copy(results = it, employees = it)
+                    }
+//                    _uiState.value = _uiState.value.copy(results = updatedEmployeeList, employees = updatedEmployeeList)
                 }
             }
 

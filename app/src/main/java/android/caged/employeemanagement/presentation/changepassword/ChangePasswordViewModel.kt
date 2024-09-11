@@ -2,6 +2,7 @@ package android.caged.employeemanagement.presentation.changepassword
 
 import android.caged.employeemanagement.domain.manager.LocalUserManager
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
+import android.caged.employeemanagement.ext.isValidPassword
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -31,13 +32,20 @@ class ChangePasswordViewModel @Inject constructor(
         }
     }
 
-    fun changePassword(navigateToPopUp: (String, String) -> Unit) {
+    private fun changePassword(navigateToPopUp: (String, String) -> Unit) {
+
+        if(!uiState.value.newPassword.isValidPassword()) {
+            uiState.value = uiState.value.copy(error = "Password must be at least 8 characters long")
+            Log.i("ChangePasswordViewModel", "Password must be at least 8 characters long")
+            return
+        }
+        if(uiState.value.newPassword != uiState.value.confirmPassword) {
+            uiState.value = uiState.value.copy(error = "Passwords do not match")
+            Log.i("ChangePasswordViewModel", "Passwords do not match")
+            return
+        }
+
         viewModelScope.launch {
-            if(uiState.value.newPassword != uiState.value.confirmPassword) {
-                uiState.value = uiState.value.copy(error = "Passwords do not match")
-                Log.i("ChangePasswordViewModel", "Passwords do not match")
-                return@launch
-            }
             if(localUserManager.credentials.first().second!! == uiState.value.oldPassword) {
                 applicationUseCases.updatePassword(localUserManager.credentials.first().first!!, uiState.value.newPassword)
                 localUserManager.saveCredentials(localUserManager.credentials.first().first!!, uiState.value.newPassword)

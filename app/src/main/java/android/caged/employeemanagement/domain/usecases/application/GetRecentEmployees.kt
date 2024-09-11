@@ -6,11 +6,11 @@ import android.caged.employeemanagement.domain.repository.EmployeeRepository
 class GetRecentEmployees(
     private val employeeRepository: EmployeeRepository
 ) {
-    suspend operator fun invoke() : List<Employee> = employeeRepository.getRecentEmployees()
+    suspend operator fun invoke() = employeeRepository.getRecentEmployees()
 }
 
 class GetRecentEmployeesByTeamId (
     private val employeeRepository: EmployeeRepository
 ) {
-    suspend operator fun invoke(teamId: Long) : List<Employee> = employeeRepository.getRecentEmployeesByTeamId(teamId)
+    operator fun invoke(teamId: Long) = employeeRepository.getRecentEmployeesByTeamId(teamId)
 }

@@ -5,11 +5,11 @@ import android.caged.employeemanagement.domain.repository.EmployeeRepository
 class SearchEmployee(
     private val employeeRepository: EmployeeRepository
 ) {
-    suspend operator fun invoke(query: String) = employeeRepository.searchEmployee(query)
+    operator fun invoke(query: String) = employeeRepository.searchEmployee(query)
 }
 
 class SearchEmployeeByTeam(
     private val employeeRepository: EmployeeRepository
 ) {
-    suspend operator fun invoke(query: String, teamId: Long) = employeeRepository.searchEmployeeByTeam(query, teamId)
+    operator fun invoke(query: String, teamId: Long) = employeeRepository.searchEmployeeByTeam(query, teamId)
 }

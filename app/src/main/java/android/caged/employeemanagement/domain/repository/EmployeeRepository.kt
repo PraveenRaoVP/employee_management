@@ -1,17 +1,18 @@
 package android.caged.employeemanagement.domain.repository
 
 import android.caged.employeemanagement.domain.model.Employee
+import kotlinx.coroutines.flow.Flow
 
 interface EmployeeRepository {
-    suspend fun getEmployeeById(employeeId: Long) : Employee?
+    fun getEmployeeById(employeeId: Long) : Flow<Employee?>
 
     suspend fun insertEmployee(employee: Employee): Long
 
-    suspend fun getEmployeesByTeamName(teamName: String) : List<Employee>
+    fun getEmployeesByTeamName(teamName: String) : Flow<List<Employee>>
 
-    suspend fun searchEmployeesByName(searchQuery: String) : List<Employee>
+    fun searchEmployeesByName(searchQuery: String) : Flow<List<Employee>>
 
-    suspend fun getAllEmployees() : List<Employee>
+    fun getAllEmployees() : Flow<List<Employee>>
 
     suspend fun deleteEmployeeById(employeeId: Long)
 
@@ -19,15 +20,15 @@ interface EmployeeRepository {
 
     suspend fun getEmployeeCount() : Int
 
-    suspend fun getRecentEmployees() : List<Employee>
+    fun getRecentEmployees() : Flow<List<Employee>>
 
-    suspend fun getRecentEmployeesByTeamId(teamId: Long) : List<Employee>
+    fun getRecentEmployeesByTeamId(teamId: Long) : Flow<List<Employee>>
 
-    suspend fun searchEmployee(searchQuery: String) : List<Employee>
+    fun searchEmployee(searchQuery: String) : Flow<List<Employee>>
 
-    suspend fun searchEmployeeByTeam(searchQuery: String, teamID: Long) : List<Employee>
+    fun searchEmployeeByTeam(searchQuery: String, teamID: Long) : Flow<List<Employee>>
 
     suspend fun getEmployeeCountByTeamID(teamId: Long): Int
     suspend fun updateEmployeeTeam(employeeId: Long, teamID: Long)
-    suspend fun getEmployeesByTeamId(teamID: Long): List<Employee>
+    fun getEmployeesByTeamId(teamID: Long): Flow<List<Employee>>
 }

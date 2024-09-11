@@ -32,13 +32,13 @@ class HomeViewModel @Inject constructor(
 
     fun refreshData() {
         viewModelScope.launch {
-            val currentEmployee: Employee = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!)!!
+            val currentEmployee: Employee = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!).first()!!
             if (currentEmployee.position == Position.ADMIN) {
                 _uiState.value = _uiState.value.copy(
                     teamMap = applicationUseCases.getAllTeamsAsMap(),
                     employeeCount = applicationUseCases.getEmployeeCount(),
                     teamCount = applicationUseCases.getTeamCount(),
-                    recentEmployees = applicationUseCases.getRecentEmployees()
+                    recentEmployees = applicationUseCases.getRecentEmployees().first()
                 )
 
                 for((teamID, team) in uiState.value.teamMap) {
@@ -52,7 +52,7 @@ class HomeViewModel @Inject constructor(
                     teamMap = applicationUseCases.getAllTeamsAsMap(),
                     employeeCount = applicationUseCases.getEmployeeCountByTeam(currentEmployee.teamID!!),
                     teamCount = 1,
-                    recentEmployees = applicationUseCases.getRecentEmployeesByTeamId(currentEmployee.teamID!!)
+                    recentEmployees = applicationUseCases.getRecentEmployeesByTeamId(currentEmployee.teamID!!).first()
                 )
             }
         }

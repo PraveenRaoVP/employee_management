@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import android.caged.employeemanagement.ui.theme.EmployeeManagementTheme
+import android.caged.employeemanagement.utils.ThemePreferenceManager
 import android.content.pm.PackageManager
 import android.util.DisplayMetrics
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,10 +41,18 @@ class MainActivity : ComponentActivity() {
         installSplashScreen().apply {
             setKeepOnScreenCondition { mainViewModel.splashCondition }
         }
+
+        ThemePreferenceManager.init(this)
+
         enableEdgeToEdge()
 
         setContent {
-            EmployeeManagementTheme {
+
+            val isDarkTheme = ThemePreferenceManager.isDarkTheme.value
+
+            EmployeeManagementTheme(
+                darkTheme = isDarkTheme
+            ) {
                 val startDestination = mainViewModel.startDestination
                 NavGraph(startDestination = startDestination)
             }

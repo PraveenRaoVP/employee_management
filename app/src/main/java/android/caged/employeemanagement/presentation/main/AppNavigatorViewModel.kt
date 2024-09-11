@@ -8,6 +8,7 @@ import android.caged.employeemanagement.domain.repository.EmployeeRepository
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import android.util.Log
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -78,18 +79,22 @@ class AppNavigatorViewModel @Inject constructor(
                 val userId = credentials.first ?: throw IllegalStateException("User ID is null")
                 val userDetails = applicationUseCases.getEmployeeById(userId)
                 if (userDetails != null) {
-                    currentUser.value = userDetails
-                    val teamDetails = applicationUseCases.getTeamDetailsById(userDetails.teamID)
-                    if (teamDetails != null) {
-                        currentUserTeam.value = teamDetails
-                    } else {
-                        Log.i("AppNavigatorViewModel", "Team details could not be retrieved")
+                    userDetails.collect {
+                        currentUser.value = it!!
+                        val teamDetails = applicationUseCases.getTeamDetailsById(it.teamID)
+                        if (teamDetails != null) {
+                            currentUserTeam.value = teamDetails
+                        } else {
+                            Log.i("AppNavigatorViewModel", "Team details could not be retrieved")
+                        }
+                        userType.value = when (it.position) {
+                            Position.ADMIN -> Position.ADMIN
+                            Position.MANAGER -> Position.MANAGER
+                            else -> Position.EMPLOYEE
+                        }
                     }
-                    userType.value = when (userDetails.position) {
-                        Position.ADMIN -> Position.ADMIN
-                        Position.MANAGER -> Position.MANAGER
-                        else -> Position.EMPLOYEE
-                    }
+//                    currentUser.value = userDetails.collectAsState().value!!
+
                 } else {
                     // Handle case where userDetails is null
                     throw IllegalStateException("User details could not be retrieved")

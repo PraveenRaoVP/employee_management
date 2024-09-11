@@ -52,9 +52,11 @@ class ProfilePageViewModel @Inject constructor(
     private fun getEmployee(employeeId: Long) {
         viewModelScope.launch {
             val fetchedEmployee = applicationUseCases.getEmployeeById(employeeId)
-            employee.value = fetchedEmployee
-            fetchedEmployee?.teamID?.let {
-                getTeamName(it)
+            fetchedEmployee.collect { fetchedEmployee ->
+                employee.value = fetchedEmployee
+                fetchedEmployee?.teamID?.let {
+                    getTeamName(it)
+                }
             }
         }
     }

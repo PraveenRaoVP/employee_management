@@ -7,12 +7,13 @@ import android.caged.employeemanagement.domain.repository.EmployeeRepository
 import android.util.Log
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.Flow
 
 class EmployeeRepositoryImpl(
     private val employeeDao: EmployeeDao
 ) : EmployeeRepository {
 
-    override suspend fun getEmployeeById(employeeId: Long): Employee? {
+    override fun getEmployeeById(employeeId: Long): Flow<Employee?> {
         return employeeDao.getEmployeeById(employeeId)
     }
 
@@ -20,19 +21,19 @@ class EmployeeRepositoryImpl(
         return employeeDao.insertEmployee(employee)
     }
 
-    override suspend fun getEmployeesByTeamName(teamName: String): List<Employee> {
+    override fun getEmployeesByTeamName(teamName: String): Flow<List<Employee>> {
         return employeeDao.getEmployeesByTeamName(teamName)
     }
 
-    override suspend fun getEmployeesByTeamId(teamID: Long): List<Employee> {
+    override fun getEmployeesByTeamId(teamID: Long): Flow<List<Employee>> {
         return employeeDao.getEmployeesByTeamName(teamID)
     }
 
-    override suspend fun searchEmployeesByName(searchQuery: String): List<Employee> {
+    override fun searchEmployeesByName(searchQuery: String): Flow<List<Employee>> {
         return employeeDao.searchEmployeesByName(searchQuery)
     }
 
-    override suspend fun getAllEmployees(): List<Employee> {
+    override fun getAllEmployees(): Flow<List<Employee>> {
         return employeeDao.getAllEmployees()
     }
 
@@ -48,19 +49,19 @@ class EmployeeRepositoryImpl(
         return employeeDao.getEmployeeCount()
     }
 
-    override suspend fun getRecentEmployees(): List<Employee> {
+    override fun getRecentEmployees(): Flow<List<Employee>> {
         return employeeDao.getRecentEmployees()
     }
 
-    override suspend fun getRecentEmployeesByTeamId(teamId: Long): List<Employee> {
+    override fun getRecentEmployeesByTeamId(teamId: Long): Flow<List<Employee>> {
         return employeeDao.getRecentEmployeesByTeamId(teamId)
     }
 
-    override suspend fun searchEmployee(searchQuery: String): List<Employee> {
+    override fun searchEmployee(searchQuery: String): Flow<List<Employee>> {
         return employeeDao.searchEmployeesByName(searchQuery)
     }
 
-    override suspend fun searchEmployeeByTeam(searchQuery: String, teamID: Long): List<Employee> {
+    override fun searchEmployeeByTeam(searchQuery: String, teamID: Long): Flow<List<Employee>> {
         return employeeDao.searchEmployeeByTeam(searchQuery, teamID)
     }
 
