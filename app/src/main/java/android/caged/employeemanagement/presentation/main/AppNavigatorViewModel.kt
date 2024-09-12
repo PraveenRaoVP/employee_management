@@ -33,55 +33,21 @@ class AppNavigatorViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             try {
-//                applicationUseCases.insertEmployee(
-//                    Employee(
-//                        1,
-//                        "Admin",
-//                        Position.ADMIN,
-//                        "Lead Admin",
-//                        100000.0,
-//                        "admin@gmail.com",
-//                        1,
-//                        "9974297323",
-//                        "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"
-//                    )
-//                )
-//
-//                applicationUseCases.insertEmployee(
-//                    Employee(
-//                        2,
-//                        "Manager",
-//                        Position.MANAGER,
-//                        "Admin Manager",
-//                        1000000.0,
-//                        "adminmanager@gmail.com",
-//                        1,
-//                        "6388170273",
-//                        "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg"
-//                    )
-//                )
-//
-//                applicationUseCases.createTeam(Team(1, "Admin", 2))
-//
-//                if(applicationUseCases.getCredentials(1) == null && applicationUseCases.getCredentials(2) == null) {
-//                    applicationUseCases.insertCredentials( 1, "admin")
-//                    applicationUseCases.insertCredentials( 2, "admin")
-//                }
-
-                val teamMap = applicationUseCases.getAllTeamsAsMap()
+                // Delete teams with no employees
+                val teamMap = applicationUseCases.teamUseCases.getAllTeamsAsMap()
                 for((key, value) in teamMap) {
-                    if(applicationUseCases.getEmployeeCountByTeam(key) == 0) {
-                        applicationUseCases.deleteTeam(key)
+                    if(applicationUseCases.employeeUseCases.getEmployeeCountByTeam(key) == 0) {
+                        applicationUseCases.teamUseCases.deleteTeam(key)
                     }
                 }
 
                 val credentials = localUserManager.credentials.first()
                 val userId = credentials.first ?: throw IllegalStateException("User ID is null")
-                val userDetails = applicationUseCases.getEmployeeById(userId)
+                val userDetails = applicationUseCases.employeeUseCases.getEmployeeById(userId)
                 if (userDetails != null) {
                     userDetails.collect {
                         currentUser.value = it!!
-                        val teamDetails = applicationUseCases.getTeamDetailsById(it.teamID)
+                        val teamDetails = applicationUseCases.teamUseCases.getTeamDetailsById(it.teamID)
                         if (teamDetails != null) {
                             currentUserTeam.value = teamDetails
                         } else {

@@ -55,6 +55,9 @@ fun ChangePasswordScreen(
             Button(onClick = { onEvent(ChangePasswordEvent.ChangePassword, navigateToPopUp) }) {
                 Text("Submit")
             }
+            if(state.error.isNotBlank()) {
+                Text(state.error)
+            }
         }
     }
 }

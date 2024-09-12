@@ -134,6 +134,11 @@ fun AdminDashboardScreen(
 
 //@Composable
 //fun BarChart(state: HomeState, maxHeight: Dp) {
+//
+//}
+
+//@Composable
+//fun BarChart(state: HomeState, maxHeight: Dp) {
 ////    val context = LocalContext.current
 ////    val dataPoints = state.employeeCountPerTeam.map { (team, employeeCount) ->
 ////        DataPoint(

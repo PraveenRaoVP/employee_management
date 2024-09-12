@@ -1,10 +1,8 @@
 package android.caged.employeemanagement.presentation.auth.login
 
 import android.caged.employeemanagement.domain.manager.LocalUserManager
-import android.caged.employeemanagement.domain.usecases.appentry.SaveCredentialsEntry
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.navgraph.Screen
-import android.caged.employeemanagement.presentation.navgraph.navigateToPopUp
 import android.caged.employeemanagement.utils.returnHashedPassword
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -61,7 +59,7 @@ class LoginViewModel @Inject constructor(
                 state.value = state.value.copy(isLoading = false)
                 return@launch
             }
-            if(employeeId.isBlank() || applicationUseCases.findEmployeeById(employeeId.toLong()) == null) {
+            if(employeeId.isBlank() || applicationUseCases.employeeUseCases.findEmployeeById(employeeId.toLong()) == null) {
                 state.value = state.value.copy(isErrorEmpId = true, errorEmpId = "Invalid Employee ID. Please enter a valid Employee ID.")
                 state.value = state.value.copy(isLoading = false)
             }
@@ -71,7 +69,7 @@ class LoginViewModel @Inject constructor(
                 return@launch
             }
 
-            if(applicationUseCases.getCredentials(employeeId.toLong())?.password != returnHashedPassword(password)) {
+            if(applicationUseCases.credentialUseCases.getCredentials(employeeId.toLong())?.password != returnHashedPassword(password)) {
                 state.value = state.value.copy(isErrorPassword = true, errorPassword = "Incorrect Password. Please enter the correct password.", isLoading = false)
             }
 

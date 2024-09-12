@@ -1,15 +1,9 @@
 package android.caged.employeemanagement
 
-import android.caged.employeemanagement.data.manager.LocalUserManagerImpl
 import android.caged.employeemanagement.domain.manager.LocalUserManager
-import android.caged.employeemanagement.domain.model.Credentials
 import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.model.Team
-import android.caged.employeemanagement.domain.repository.CredentialsRepository
-import android.caged.employeemanagement.domain.repository.EmployeeRepository
-import android.caged.employeemanagement.domain.repository.TeamRepository
-import android.caged.employeemanagement.domain.usecases.appentry.SaveCredentialsEntry
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import androidx.compose.runtime.getValue
@@ -37,7 +31,7 @@ class MainViewModel @Inject constructor(
     init {
         // if the credentials are not null
         viewModelScope.launch {
-            applicationUseCases.insertEmployee(
+            applicationUseCases.employeeUseCases.insertEmployee(
                 Employee(
                     1,
                     "Admin",
@@ -51,7 +45,7 @@ class MainViewModel @Inject constructor(
                 )
             )
 
-            applicationUseCases.insertEmployee(
+            applicationUseCases.employeeUseCases.insertEmployee(
                 Employee(
                     2,
                     "Manager",
@@ -65,14 +59,14 @@ class MainViewModel @Inject constructor(
                 )
             )
 
-            applicationUseCases.createTeam(Team(1, "Admin", 2))
+            applicationUseCases.teamUseCases.createTeam(Team(1, "Admin", 2))
 
-            if(applicationUseCases.getCredentials(1) == null) {
-                applicationUseCases.insertCredentials( 1, "admin")
+            if(applicationUseCases.credentialUseCases.getCredentials(1) == null) {
+                applicationUseCases.credentialUseCases.insertCredentials( 1, "admin")
             }
 
-            if(applicationUseCases.getCredentials(2) == null) {
-                applicationUseCases.insertCredentials( 2, "admin")
+            if(applicationUseCases.credentialUseCases.getCredentials(2) == null) {
+                applicationUseCases.credentialUseCases.insertCredentials( 2, "admin")
             }
 
             delay(100)

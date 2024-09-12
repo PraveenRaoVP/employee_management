@@ -32,27 +32,27 @@ class HomeViewModel @Inject constructor(
 
     fun refreshData() {
         viewModelScope.launch {
-            val currentEmployee: Employee = applicationUseCases.getEmployeeById(localUserManager.credentials.first().first!!).first()!!
+            val currentEmployee: Employee = applicationUseCases.employeeUseCases.getEmployeeById(localUserManager.credentials.first().first!!).first()!!
             if (currentEmployee.position == Position.ADMIN) {
                 _uiState.value = _uiState.value.copy(
-                    teamMap = applicationUseCases.getAllTeamsAsMap(),
-                    employeeCount = applicationUseCases.getEmployeeCount(),
-                    teamCount = applicationUseCases.getTeamCount(),
-                    recentEmployees = applicationUseCases.getRecentEmployees().first()
+                    teamMap = applicationUseCases.teamUseCases.getAllTeamsAsMap(),
+                    employeeCount = applicationUseCases.employeeUseCases.getEmployeeCount(),
+                    teamCount = applicationUseCases.teamUseCases.getTeamCount(),
+                    recentEmployees = applicationUseCases.employeeUseCases.getRecentEmployees().first()
                 )
 
                 for((teamID, team) in uiState.value.teamMap) {
                     _uiState.value = _uiState.value.copy(
-                        employeeCountPerTeam = uiState.value.employeeCountPerTeam + (team to applicationUseCases.getEmployeeCountByTeam(teamID))
+                        employeeCountPerTeam = uiState.value.employeeCountPerTeam + (team to applicationUseCases.employeeUseCases.getEmployeeCountByTeam(teamID))
                     )
                 }
 
             } else if (currentEmployee.position == Position.MANAGER) {
                 _uiState.value = _uiState.value.copy(
-                    teamMap = applicationUseCases.getAllTeamsAsMap(),
-                    employeeCount = applicationUseCases.getEmployeeCountByTeam(currentEmployee.teamID!!),
+                    teamMap = applicationUseCases.teamUseCases.getAllTeamsAsMap(),
+                    employeeCount = applicationUseCases.employeeUseCases.getEmployeeCountByTeam(currentEmployee.teamID!!),
                     teamCount = 1,
-                    recentEmployees = applicationUseCases.getRecentEmployeesByTeamId(currentEmployee.teamID!!).first()
+                    recentEmployees = applicationUseCases.employeeUseCases.getRecentEmployeesByTeamId(currentEmployee.teamID!!).first()
                 )
             }
         }

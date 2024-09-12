@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -30,63 +31,68 @@ fun EmployeeDetailsScreen(
     onBack: () -> Unit,
     onEvent: (EmployeeDetailsEvent) -> Unit
 ) {
-    employee?.let { emp ->
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AndroidView(
-                factory = { context ->
-                    ImageView(context).apply {
-                        scaleType = ImageView.ScaleType.CENTER_CROP
-                        Glide.with(context)
-                            .load(emp.profileImageUrl)
-                            .circleCrop()
-                            .listener(object : RequestListener<Drawable> {
-                                override fun onResourceReady(
-                                    resource: Drawable,
-                                    model: Any,
-                                    target: com.bumptech.glide.request.target.Target<Drawable>?,
-                                    dataSource: DataSource,
-                                    isFirstResource: Boolean
-                                ): Boolean {
-                                    return false
-                                }
+    Scaffold(
 
-                                override fun onLoadFailed(
-                                    e: GlideException?,
-                                    model: Any?,
-                                    target: Target<Drawable>,
-                                    isFirstResource: Boolean
-                                ): Boolean {
-                                    Log.e("Glide", "Image load failed", e)
-                                    return false
-                                }
-                            })
-                            .into(this)
-                    }
-                },
-                modifier = Modifier
-                    .height(128.dp)
-                    .border(
-                        width = 1.dp,
-                        color = Color.White,
-                        shape = RoundedCornerShape(50.dp)
-                    )
-            )
+    ) { innerPadding ->
+        val topPadding = innerPadding.calculateTopPadding()
+        employee?.let { emp ->
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AndroidView(
+                    factory = { context ->
+                        ImageView(context).apply {
+                            scaleType = ImageView.ScaleType.CENTER_CROP
+                            Glide.with(context)
+                                .load(emp.profileImageUrl)
+                                .circleCrop()
+                                .listener(object : RequestListener<Drawable> {
+                                    override fun onResourceReady(
+                                        resource: Drawable,
+                                        model: Any,
+                                        target: com.bumptech.glide.request.target.Target<Drawable>?,
+                                        dataSource: DataSource,
+                                        isFirstResource: Boolean
+                                    ): Boolean {
+                                        return false
+                                    }
 
-            // Display the employee details
-            Text(text = "EmployeeID : ${emp.employeeId}")
-            Text(text = "Name: ${emp.employeeName}")
-            Text(text = "Designation: ${emp.designation}")
-            Text(text = "Position: ${emp.position}")
-            Text(text = "Team: $teamName")
-            Text(text = "Salary: ${emp.salary}")
-            Text(text = "Email: ${emp.email}")
-            Text(text = "Phone: ${emp.phone}")
+                                    override fun onLoadFailed(
+                                        e: GlideException?,
+                                        model: Any?,
+                                        target: Target<Drawable>,
+                                        isFirstResource: Boolean
+                                    ): Boolean {
+                                        Log.e("Glide", "Image load failed", e)
+                                        return false
+                                    }
+                                })
+                                .into(this)
+                        }
+                    },
+                    modifier = Modifier
+                        .height(128.dp)
+                        .border(
+                            width = 1.dp,
+                            color = Color.White,
+                            shape = RoundedCornerShape(50.dp)
+                        )
+                )
+
+                // Display the employee details
+                Text(text = "EmployeeID : ${emp.employeeId}")
+                Text(text = "Name: ${emp.employeeName}")
+                Text(text = "Designation: ${emp.designation}")
+                Text(text = "Position: ${emp.position}")
+                Text(text = "Team: $teamName")
+                Text(text = "Salary: ${emp.salary}")
+                Text(text = "Email: ${emp.email}")
+                Text(text = "Phone: ${emp.phone}")
+            }
+        } ?: run {
+            Text(text = "Loading employee details...")
         }
-    } ?: run {
-        Text(text = "Loading employee details...")
     }
 }

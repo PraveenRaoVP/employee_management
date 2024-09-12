@@ -23,7 +23,7 @@ class AddEmployeeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            teamState.value = teamState.value.copy(teams = applicationUseCases.getAllTeamsAsMap())
+            teamState.value = teamState.value.copy(teams = applicationUseCases.teamUseCases.getAllTeamsAsMap())
         }
     }
 
@@ -45,47 +45,47 @@ class AddEmployeeViewModel @Inject constructor(
         }
     }
 
-    fun employeeNameChange(name: String) {
+    private fun employeeNameChange(name: String) {
         uiState.value = uiState.value.copy(employeeName = name)
     }
 
-    fun teamNameChanged(teamName: String) {
+    private fun teamNameChanged(teamName: String) {
         teamState.value = teamState.value.copy(teamName = teamName)
     }
 
-    fun designationChange(designation: String) {
+    private fun designationChange(designation: String) {
         uiState.value = uiState.value.copy(designation = designation)
     }
 
-    fun positionChange(position: Position) {
+    private fun positionChange(position: Position) {
         uiState.value = uiState.value.copy(position = position)
     }
 
-    fun teamChanged(teamId: Long) {
+    private fun teamChanged(teamId: Long) {
         uiState.value = uiState.value.copy(teamId = teamId)
     }
 
-    fun salaryChanged(salary: String) {
+    private fun salaryChanged(salary: String) {
         uiState.value = uiState.value.copy(salary = salary)
     }
 
-    fun emailChanged(email: String) {
+    private fun emailChanged(email: String) {
         uiState.value = uiState.value.copy(email = email)
     }
 
-    fun phoneChanged(phone: String) {
+    private fun phoneChanged(phone: String) {
         uiState.value = uiState.value.copy(phone = phone)
     }
 
-    fun photoImageUrlChanged(url: String) {
+    private fun photoImageUrlChanged(url: String) {
         uiState.value = uiState.value.copy(profileImageUrl = url)
     }
 
-    fun createTeam() {
+    private fun createTeam() {
         viewModelScope.launch {
             val teamName = teamState.value.teamName
-            if(applicationUseCases.getTeamByName(teamName) == null) {
-                val teamId = applicationUseCases.createTeam(Team(teamName = teamName, teamLeadID = -1))
+            if(applicationUseCases.teamUseCases.getTeamByName(teamName) == null) {
+                val teamId = applicationUseCases.teamUseCases.createTeam(Team(teamName = teamName, teamLeadID = -1))
                 uiState.value = uiState.value.copy(teamId = teamId)
                 teamState.value = teamState.value.copy(disableTeamCreateButton = true)
             } else {
@@ -94,7 +94,7 @@ class AddEmployeeViewModel @Inject constructor(
         }
     }
 
-    fun createEmployee(navigateToPopUp: (String, String) -> Unit) {
+    private fun createEmployee(navigateToPopUp: (String, String) -> Unit) {
         uiState.value = uiState.value.copy(error = "")
         if(uiState.value.employeeName.isEmpty() || uiState.value.designation.isEmpty() || uiState.value.email.isEmpty() || uiState.value.phone.isEmpty() || uiState.value.profileImageUrl.isEmpty()) {
             uiState.value = uiState.value.copy(error = "Please fill all the fields")
@@ -127,10 +127,10 @@ class AddEmployeeViewModel @Inject constructor(
                     profileImageUrl = employeeState.profileImageUrl
                 )
 
-                val generatedEmployeeId = applicationUseCases.insertEmployee(newEmployee)
+                val generatedEmployeeId = applicationUseCases.employeeUseCases.insertEmployee(newEmployee)
 
                 if(generatedEmployeeId != -1L) {
-                    applicationUseCases.updateTeamLeadIDInTeam(teamId = uiState.value.teamId, teamLeadId = generatedEmployeeId)
+                    applicationUseCases.teamUseCases.updateTeamLeadIDInTeam(teamId = uiState.value.teamId, teamLeadId = generatedEmployeeId)
                 } else {
                     Log.i("Employee ID","Employee ID: $generatedEmployeeId")
                 }
@@ -148,7 +148,7 @@ class AddEmployeeViewModel @Inject constructor(
 //                }
 
                 // create credentials for the employee
-                applicationUseCases.insertCredentials(employeeId = generatedEmployeeId, password = "password")
+                applicationUseCases.credentialUseCases.insertCredentials(employeeID = generatedEmployeeId, password = "password")
 
                 // Step 4: Navigate to a success pop-up or another screen
                 navigateToPopUp(Screen.PostLogin.route, Screen.AddEmployeeRoute.route)

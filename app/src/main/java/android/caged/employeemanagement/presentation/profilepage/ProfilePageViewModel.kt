@@ -3,7 +3,6 @@ package android.caged.employeemanagement.presentation.profilepage
 import android.caged.employeemanagement.domain.manager.LocalUserManager
 import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
-import android.caged.employeemanagement.domain.usecases.application.GetTeamDetailsById
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -29,7 +28,7 @@ class ProfilePageViewModel @Inject constructor(
             is ProfilePageEvent.UpdateProfileImageUrl -> {
                 viewModelScope.launch {
                     uiState.value = uiState.value.copy(profileImageUrl = event.newProfileImageUrl)
-                    applicationUseCases.updateProfileImage(userId.value, event.newProfileImageUrl)
+                    applicationUseCases.employeeUseCases.updateProfileImage(userId.value, event.newProfileImageUrl)
                     setUserId(userId.value)
                     refreshEmployee() // Refresh the employee data to reflect the changes
                 }
@@ -51,7 +50,7 @@ class ProfilePageViewModel @Inject constructor(
 
     private fun getEmployee(employeeId: Long) {
         viewModelScope.launch {
-            val fetchedEmployee = applicationUseCases.getEmployeeById(employeeId)
+            val fetchedEmployee = applicationUseCases.employeeUseCases.getEmployeeById(employeeId)
             fetchedEmployee.collect { fetchedEmployee ->
                 employee.value = fetchedEmployee
                 fetchedEmployee?.teamID?.let {
@@ -63,7 +62,7 @@ class ProfilePageViewModel @Inject constructor(
 
     private fun getTeamName(teamId: Long) {
         viewModelScope.launch {
-            teamName.value = applicationUseCases.getTeamById(teamId)?.teamName ?: "No team"
+            teamName.value = applicationUseCases.teamUseCases.getTeamByID(teamId)?.teamName ?: "No team"
         }
     }
 

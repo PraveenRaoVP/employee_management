@@ -28,7 +28,7 @@ class EmployeeDetailsViewModel @Inject constructor(
         when(event) {
             is EmployeeDetailsEvent.GetTeamName -> {
                 viewModelScope.launch {
-                    teamName.value = applicationUseCases.getTeamById(event.teamID)?.teamName ?: "No team"
+                    teamName.value = applicationUseCases.teamUseCases.getTeamByID(event.teamID)?.teamName ?: "No team"
                 }
             }
             is EmployeeDetailsEvent.GetEmployee -> {
@@ -39,7 +39,7 @@ class EmployeeDetailsViewModel @Inject constructor(
 
     private fun getEmployee(employeeId: Long) {
         viewModelScope.launch {
-            applicationUseCases.getEmployeeById(employeeId).collect {
+            applicationUseCases.employeeUseCases.getEmployeeById(employeeId).collect {
                 _employee.value = it
             }
         }

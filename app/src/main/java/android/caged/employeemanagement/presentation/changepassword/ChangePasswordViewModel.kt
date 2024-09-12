@@ -47,7 +47,8 @@ class ChangePasswordViewModel @Inject constructor(
 
         viewModelScope.launch {
             if(localUserManager.credentials.first().second!! == uiState.value.oldPassword) {
-                applicationUseCases.updatePassword(localUserManager.credentials.first().first!!, uiState.value.newPassword)
+                uiState.value = uiState.value.copy(error = "")
+                applicationUseCases.credentialUseCases.updatePassword(localUserManager.credentials.first().first!!, uiState.value.newPassword)
                 localUserManager.saveCredentials(localUserManager.credentials.first().first!!, uiState.value.newPassword)
                 Log.i("ChangePasswordViewModel", "Password changed from ${uiState.value.oldPassword} to ${uiState.value.newPassword}")
                 withContext(Dispatchers.Main) {

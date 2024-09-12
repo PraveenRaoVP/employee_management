@@ -97,15 +97,19 @@ fun ListingEmployeesScreen(
             state.results
         }
 
-        EmployeeList(
-            employeeList = filteredEmployeeList,
-            teamMap = state.teamMap,
-            onEmployeeClick = navigate,
-            shouldDelete = shouldDelete,
-            onDeleteClicked = { employee ->
-                onEvent(ListingEvent.DeleteEmployee(employee))
-                Glide.get(context).clearMemory()
-            }
-        )
+        if(filteredEmployeeList.isEmpty()) {
+            Text("No employees found")
+        } else {
+            EmployeeList(
+                employeeList = filteredEmployeeList,
+                teamMap = state.teamMap,
+                onEmployeeClick = navigate,
+                shouldDelete = shouldDelete,
+                onDeleteClicked = { employee ->
+                    onEvent(ListingEvent.DeleteEmployee(employee))
+                    Glide.get(context).clearMemory()
+                }
+            )
+        }
     }
 }
