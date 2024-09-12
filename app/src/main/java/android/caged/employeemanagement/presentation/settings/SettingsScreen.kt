@@ -39,7 +39,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun SettingsScreen(
     navigatePopUp : (String, String) -> Unit,
-//    previousScreen: String,
+    navigatePopBackStack: () -> Unit,
     signOut : ((String, String) -> Unit) -> Unit
 ) {
 
@@ -56,10 +56,7 @@ fun SettingsScreen(
     Scaffold(
         topBar = {
             ActionBar(title = "Settings", isBackEnabled = true, onBackClick = {
-                navigatePopUp(
-                    Screen.PostLogin.route,
-                    Screen.SettingsRoute.route
-                )
+                navigatePopBackStack()
             }, onAddEmployeeClick = {})
         }
     ) { innerPadding ->

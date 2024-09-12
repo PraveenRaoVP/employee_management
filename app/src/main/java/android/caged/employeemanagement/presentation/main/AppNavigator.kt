@@ -60,7 +60,7 @@ fun AppNavigator(
             BottomNavigationItem(
                 route = Screen.ListingEmployees.route,
                 icon = Icons.AutoMirrored.Filled.List,
-                label = "Listing Employees"
+                label = "Employee List"
             ),
             BottomNavigationItem(
                 route = Screen.ProfileRoute.route,
@@ -223,7 +223,7 @@ fun AppNavigator(
                 val viewModel: SettingsViewModel = hiltViewModel()
                 SettingsScreen(
                     navigatePopUp = navigateToPopUp,
-//                    previousScreen = appNavigatorViewModel.previousScreen.value,
+                    navigatePopBackStack = { navigatePopBackStack(navController) } ,
                     signOut = viewModel::signOut
                 )
             }
@@ -303,7 +303,7 @@ private fun navigateToTab(navController: NavController, route: String) {
     }
 }
 
-private fun navigatePopBackStack(navController: NavController) {
+fun navigatePopBackStack(navController: NavController) {
     navController.popBackStack()
 }
 

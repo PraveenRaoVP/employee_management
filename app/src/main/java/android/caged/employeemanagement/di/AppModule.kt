@@ -14,8 +14,6 @@ import android.caged.employeemanagement.domain.manager.LocalUserManager
 import android.caged.employeemanagement.domain.repository.CredentialsRepository
 import android.caged.employeemanagement.domain.repository.EmployeeRepository
 import android.caged.employeemanagement.domain.repository.TeamRepository
-import android.caged.employeemanagement.domain.usecases.appentry.DarkModeEntry
-import android.caged.employeemanagement.domain.usecases.appentry.SaveCredentialsEntry
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.domain.usecases.application.CredentialUseCases
 import android.caged.employeemanagement.domain.usecases.application.EmployeeUseCases
@@ -95,22 +93,6 @@ object AppModule {
         )
     }
 
-
-    @Provides
-    @Singleton
-    fun provideSaveCredentialsEntry(
-        localUserManager: LocalUserManager
-    ): SaveCredentialsEntry {
-        return SaveCredentialsEntry(localUserManager)
-    }
-
-    @Provides
-    @Singleton
-    fun provideDarkModeEntry(
-        localUserManager: LocalUserManager
-    ): DarkModeEntry {
-        return DarkModeEntry(localUserManager)
-    }
 
     /********************************************************************************************************************
      * Database

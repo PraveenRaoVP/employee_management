@@ -75,7 +75,7 @@ fun EmployeeCard(
                             override fun onResourceReady(
                                 resource: Drawable,
                                 model: Any,
-                                target: com.bumptech.glide.request.target.Target<Drawable>?,
+                                target: Target<Drawable>?,
                                 dataSource: DataSource,
                                 isFirstResource: Boolean
                             ): Boolean {
@@ -98,11 +98,12 @@ fun EmployeeCard(
             modifier = Modifier
                 .height(128.dp)
         )
+        Spacer(modifier = Modifier.width(8.dp))
         Column(
             modifier = Modifier
                 .padding(horizontal = 3.dp)
                 .height(96.dp),
-            verticalArrangement = Arrangement.SpaceAround
+            verticalArrangement = Arrangement.SpaceAround,
         ) {
             Text(text = "Employee ID: ${employee.employeeId}", style = MaterialTheme.typography.bodySmall)
             Text(
@@ -114,7 +115,7 @@ fun EmployeeCard(
             )
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
-                    text = team.teamName,
+                    text = "Team: ${team.teamName},",
                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                     color = colorResource(id = R.color.body),
                     maxLines = 1,
