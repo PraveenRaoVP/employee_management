@@ -2,6 +2,7 @@ package android.caged.employeemanagement.presentation.profilepage
 
 import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
+import android.caged.employeemanagement.presentation.common.EmployeeDetail
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.ImageView
@@ -62,61 +63,7 @@ fun ProfilePageScreen(
         }
     )
 
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        AndroidView(
-            factory = { context ->
-                ImageView(context).apply {
-                    scaleType = ImageView.ScaleType.CENTER_CROP
-                    Glide.with(context)
-                        .load(user.profileImageUrl)
-                        .circleCrop()
-                        .listener(object : RequestListener<Drawable> {
-                            override fun onResourceReady(
-                                resource: Drawable,
-                                model: Any,
-                                target: com.bumptech.glide.request.target.Target<Drawable>?,
-                                dataSource: DataSource,
-                                isFirstResource: Boolean
-                            ): Boolean {
-                                return false
-                            }
-
-                            override fun onLoadFailed(
-                                e: GlideException?,
-                                model: Any?,
-                                target: Target<Drawable>,
-                                isFirstResource: Boolean
-                            ): Boolean {
-                                Log.e("Glide", "Image load failed", e)
-                                return false
-                            }
-                        })
-                        .into(this)
-                }
-            },
-            modifier = Modifier
-                .height(128.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.White,
-                    shape = RoundedCornerShape(50.dp)
-                )
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-        Text(text = "EmployeeID : ${user.employeeId}")
-        Text(text = "Name: ${user.employeeName}")
-        Text(text = "Designation: ${user.designation}")
-        Text(text = "Position: ${user.position}")
-        Text(text = "Team: $teamName")
-        Text(text = "Salary: ${user.salary}")
-        Text(text = "Email: ${user.email}")
-        Text(text = "Phone: ${user.phone}")
-    }
+    EmployeeDetail(emp = user, teamName = teamName)
 }
 
 @Preview(showBackground = true)

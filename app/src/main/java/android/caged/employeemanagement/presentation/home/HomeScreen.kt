@@ -4,6 +4,7 @@ import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.model.Team
 import android.caged.employeemanagement.presentation.common.EmployeeList
+import android.caged.employeemanagement.presentation.components.ActionBar
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import android.util.Log
 import android.widget.Toast
@@ -30,6 +31,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -45,6 +47,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import co.yml.charts.axis.AxisData
+import co.yml.charts.common.model.Point
+import co.yml.charts.ui.barchart.models.BarChartData
+import co.yml.charts.ui.barchart.models.BarData
+import co.yml.charts.ui.linechart.model.LinePlotData
 import com.bumptech.glide.Glide
 import com.madrapps.plot.line.DataPoint
 import com.madrapps.plot.line.LineGraph
@@ -54,7 +61,6 @@ import com.madrapps.plot.line.LinePlot
 @Composable
 fun HomeScreen(
     navigateToPopUp: (String, String) -> Unit,
-    navigateTo: (String) -> Unit,
     currentUser: Employee,
     state: HomeState,
     navigate: (Employee) -> Unit,
@@ -75,7 +81,8 @@ fun HomeScreen(
             teamMap = state.teamMap,
             navigate = navigate,
             state = state,
-            onRefetchData = onRefetchData
+            onRefetchData = onRefetchData,
+            navigateToPopUp = navigateToPopUp
         )
     }
     if (currentUser.position == Position.MANAGER) {
@@ -88,7 +95,7 @@ fun HomeScreen(
     }
 
     if (currentUser.position == Position.EMPLOYEE) {
-        EmployeeHomeScreen(currentUser, navigateTo)
+        EmployeeHomeScreen(currentUser)
     }
 }
 
@@ -100,7 +107,8 @@ fun AdminDashboardScreen(
     teamMap: Map<Long, Team>,
     navigate: (Employee) -> Unit,
     state: HomeState,
-    onRefetchData: () -> Unit
+    onRefetchData: () -> Unit,
+    navigateToPopUp: (String, String) -> Unit
 ) {
     Surface {
         Column(
@@ -114,8 +122,19 @@ fun AdminDashboardScreen(
             // Header section
             Text("Dashboard", style = MaterialTheme.typography.headlineMedium)
             Spacer(modifier = Modifier.height(16.dp))
-            Text("Total Employees: $employeeCount", style = MaterialTheme.typography.bodyLarge)
-            Text("Total Teams: $teamCount", style = MaterialTheme.typography.bodyLarge)
+            Row {
+                Column {
+                    Text(
+                        "Total Employees: $employeeCount",
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text("Total Teams: $teamCount", style = MaterialTheme.typography.bodyLarge)
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Button(onClick = { navigateToPopUp(Screen.Graph.route, Screen.HomeRoute.route) }) {
+                    Text("Show Graph")
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
             Text("New Employees Joined", style = MaterialTheme.typography.titleMedium)
 
@@ -126,16 +145,134 @@ fun AdminDashboardScreen(
                 onEmployeeClick = navigate,
                 onDeleteClicked = { onRefetchData() }
             )
-
-//            BarChart(state = state, maxHeight = 240.dp)
         }
     }
 }
 
-//@Composable
-//fun BarChart(state: HomeState, maxHeight: Dp) {
-//
-//}
+@Composable
+fun GraphScreen(state: HomeState, navigateToPopUp: (String, String) -> Unit) {
+    BarChart(state = state, maxHeight = 240.dp, navigateToPopUp = navigateToPopUp)
+}
+
+@Composable
+fun BarChart(state: HomeState, maxHeight: Dp, navigateToPopUp: (String, String) -> Unit) {
+    var barChartData = state.employeeCountPerTeam.map { (team, employeeCount) ->
+        DataPoint(
+            x = team.teamID.toFloat(),
+            y = employeeCount.toFloat()
+        )
+    }
+    barChartData = barChartData + DataPoint(x = 0f, y = 0f)
+
+    val context = LocalContext.current
+    Scaffold(
+        topBar = {
+            ActionBar(
+                title = "Graph",
+                isBackEnabled = true,
+                onBackClick = { navigateToPopUp(Screen.PostLogin.route, Screen.Graph.route) },
+                onAddEmployeeClick = {})
+        }
+    ) { innerPadding ->
+        val topPadding = innerPadding.calculateTopPadding()
+
+        if (barChartData.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text("Employee Count Per Team", style = MaterialTheme.typography.headlineMedium)
+
+                LineGraph(
+                    plot = LinePlot(
+                        listOf(
+                            LinePlot.Line(
+                                dataPoints = barChartData,
+                                LinePlot.Connection(color = Color.Transparent),
+                                LinePlot.Intersection(color = Color.Red),
+                                LinePlot.Highlight(color = Color.Yellow)
+                            ),
+                        ),
+                        grid = LinePlot.Grid(Color.LightGray, steps = 1),
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = topPadding)
+                        .height(maxHeight),
+                    onSelection = { xLine, points ->
+                        Toast.makeText(context, "Selected: $xLine", Toast.LENGTH_SHORT).show()
+                    }
+                )
+            }
+//            co.yml.charts.ui.barchart.BarChart(modifier = Modifier.height(maxHeight), barChartData = barChart)
+        } else {
+            // Show a message or a placeholder if there are no data points
+            Text(
+                text = "No data available for the chart.",
+                modifier = Modifier.padding(16.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = Color.Gray
+            )
+        }
+    }
+}
+
+
+
+@Composable
+fun ManagerScreen(
+    recentEmployees: List<Employee>,
+    teamMap: Map<Long, Team>,
+    navigate: (Employee) -> Unit,
+    currentUser: Employee
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Dashboard", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text(
+            "Team: ${teamMap[currentUser.teamID]?.teamName}",
+            style = MaterialTheme.typography.bodyLarge
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Text("New Employees Joined", style = MaterialTheme.typography.titleMedium)
+        Log.i("Manager", "Recent Employees: $recentEmployees")
+
+        EmployeeList(employeeList = recentEmployees, teamMap = teamMap, onEmployeeClick = navigate)
+    }
+}
+
+
+@Composable
+fun EmployeeHomeScreen(
+    currentUser: Employee,
+) {
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text("Welcome ${currentUser.employeeName}!")
+    }
+}
+
+
+
+
+
+
+
+
 
 //@Composable
 //fun BarChart(state: HomeState, maxHeight: Dp) {
@@ -308,50 +445,3 @@ fun AdminDashboardScreen(
 //        )
 //    }
 //}
-
-@Composable
-fun ManagerScreen(
-    recentEmployees: List<Employee>,
-    teamMap: Map<Long, Team>,
-    navigate: (Employee) -> Unit,
-    currentUser: Employee
-) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Dashboard", style = MaterialTheme.typography.headlineMedium)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            "Team: ${teamMap[currentUser.teamID]?.teamName}",
-            style = MaterialTheme.typography.bodyLarge
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text("New Employees Joined", style = MaterialTheme.typography.titleMedium)
-        Log.i("Manager", "Recent Employees: $recentEmployees")
-
-        EmployeeList(employeeList = recentEmployees, teamMap = teamMap, onEmployeeClick = navigate)
-    }
-}
-
-
-@Composable
-fun EmployeeHomeScreen(
-    currentUser: Employee,
-    navigateTo: (String) -> Unit
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Welcome ${currentUser.employeeName}!")
-    }
-}

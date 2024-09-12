@@ -48,7 +48,6 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun EmployeeCard(
     modifier: Modifier = Modifier,
@@ -58,12 +57,11 @@ fun EmployeeCard(
     showDeleteButton: Boolean = false,
     onDeleteClick: () -> Unit = {}
 ) {
-    val context = LocalContext.current
     Spacer(modifier = Modifier.height(6.dp))
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp)) // Apply rounded corners
+            .clip(RoundedCornerShape(10.dp)) // Apply rounded corners
             .clickable { onClick() }
     ) {
         AndroidView(
@@ -99,11 +97,6 @@ fun EmployeeCard(
             },
             modifier = Modifier
                 .height(128.dp)
-                .border(
-                    width = 1.dp,
-                    color = Color.White,
-                    shape = RoundedCornerShape(50.dp)
-                )
         )
         Column(
             modifier = Modifier
@@ -153,12 +146,13 @@ fun EmployeeCard(
                 )
             }
 
-            if(employee.position == Position.ADMIN) {
-                Icon(imageVector = Icons.Default.Star, contentDescription = "Star Icon for Admin")
-            } else if(employee.position == Position.MANAGER) {
-                Icon(imageVector = Icons.Default.Face, contentDescription = "Face Icon for Manager")
-            } else {
-                Icon(imageVector = Icons.Default.Person, contentDescription = "Person Icon for Employee")
+            when(employee.position) {
+                Position.ADMIN ->
+                    Icon(imageVector = Icons.Default.Star, contentDescription = "Star Icon for Admin")
+                Position.MANAGER ->
+                    Icon(imageVector = Icons.Default.Face, contentDescription = "Face Icon for Manager")
+                else ->
+                    Icon(imageVector = Icons.Default.Person, contentDescription = "Person Icon for Employee")
             }
         }
     }

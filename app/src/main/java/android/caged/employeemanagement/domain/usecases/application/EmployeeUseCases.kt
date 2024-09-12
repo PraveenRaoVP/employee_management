@@ -2,6 +2,7 @@ package android.caged.employeemanagement.domain.usecases.application
 
 import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.repository.EmployeeRepository
+import javax.inject.Inject
 
 class EmployeeUseCases(
     private val employeeRepository: EmployeeRepository

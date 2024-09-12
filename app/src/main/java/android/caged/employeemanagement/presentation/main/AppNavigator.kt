@@ -8,6 +8,7 @@ import android.caged.employeemanagement.presentation.components.BottomNavBar
 import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsEvent
 import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsScreen
 import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsViewModel
+import android.caged.employeemanagement.presentation.home.GraphScreen
 import android.caged.employeemanagement.presentation.home.HomeScreen
 import android.caged.employeemanagement.presentation.home.HomeViewModel
 import android.caged.employeemanagement.presentation.listingemployees.ListingEmployeesScreen
@@ -207,7 +208,6 @@ fun AppNavigator(
                 val state by homeViewModel.uiState.collectAsState()
                 HomeScreen(
                     navigateToPopUp = navigateToPopUp,
-                    navigateTo = navigateTo,
                     currentUser = appNavigatorViewModel.currentUser.value,
                     state = state,
                     navigate = { employee -> navigateToDetails(navController, employee.employeeId) },
@@ -216,6 +216,8 @@ fun AppNavigator(
                     }
                 )
             }
+            
+
 
             composable(route = Screen.SettingsRoute.route) {
                 val viewModel: SettingsViewModel = hiltViewModel()

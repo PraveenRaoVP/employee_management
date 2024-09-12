@@ -71,7 +71,7 @@ object AppModule {
     @Singleton
     fun provideCredentialUseCases(
         credentialsRepository: CredentialsRepository
-    ) : CredentialUseCases {
+    ): CredentialUseCases {
         return CredentialUseCases(credentialsRepository)
     }
 
@@ -79,7 +79,7 @@ object AppModule {
     @Singleton
     fun provideEmployeeUseCases(
         employeeRepository: EmployeeRepository
-    ) : EmployeeUseCases {
+    ): EmployeeUseCases {
         return EmployeeUseCases(
             employeeRepository = employeeRepository
         )
@@ -89,7 +89,7 @@ object AppModule {
     @Singleton
     fun provideTeamUseCases(
         teamRepository: TeamRepository
-    ) : TeamUseCases{
+    ): TeamUseCases {
         return TeamUseCases(
             teamRepository
         )

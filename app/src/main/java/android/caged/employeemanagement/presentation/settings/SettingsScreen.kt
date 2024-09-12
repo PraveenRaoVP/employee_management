@@ -47,6 +47,11 @@ fun SettingsScreen(
     var selectedTheme by remember { mutableStateOf(themeOptions[0]) }
     var isExpanded by remember { mutableStateOf(false) }
 
+    selectedTheme = if(ThemePreferenceManager.isDarkTheme.value) {
+        themeOptions[1]
+    } else {
+        themeOptions[0]
+    }
 
     Scaffold(
         topBar = {

@@ -7,6 +7,8 @@ import android.caged.employeemanagement.presentation.auth.login.LoginViewModel
 import android.caged.employeemanagement.presentation.changepassword.ChangePasswordScreen
 import android.caged.employeemanagement.presentation.changepassword.ChangePasswordViewModel
 import android.caged.employeemanagement.presentation.employeedetails.EmployeeDetailsViewModel
+import android.caged.employeemanagement.presentation.home.GraphScreen
+import android.caged.employeemanagement.presentation.home.HomeViewModel
 import android.caged.employeemanagement.presentation.main.AppNavigator
 import android.caged.employeemanagement.presentation.main.AppNavigatorViewModel
 import android.caged.employeemanagement.presentation.settings.SettingsScreen
@@ -63,6 +65,18 @@ fun NavGraph(startDestination: String) {
                     }
                 )
             }
+
+            composable(route = Screen.Graph.route) {
+                val homeViewModel: HomeViewModel = hiltViewModel()
+                GraphScreen(state = homeViewModel.uiState.value, navigateToPopUp = { route, popUp ->
+                    navigateToPopUp(
+                        route,
+                        popUp,
+                        navController
+                    )
+                })
+            }
+
             composable(route = Screen.SettingsRoute.route) {
                 val viewModel: SettingsViewModel = hiltViewModel()
                 SettingsScreen(navigatePopUp = { route, popUp ->

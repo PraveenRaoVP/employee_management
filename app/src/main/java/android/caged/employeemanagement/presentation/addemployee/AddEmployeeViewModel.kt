@@ -5,6 +5,7 @@ import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.model.Team
 import android.caged.employeemanagement.domain.usecases.application.ApplicationUseCases
 import android.caged.employeemanagement.ext.isValidEmail
+import android.caged.employeemanagement.ext.isValidMobileNumber
 import android.caged.employeemanagement.presentation.navgraph.Screen
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
@@ -96,7 +97,7 @@ class AddEmployeeViewModel @Inject constructor(
 
     private fun createEmployee(navigateToPopUp: (String, String) -> Unit) {
         uiState.value = uiState.value.copy(error = "")
-        if(uiState.value.employeeName.isEmpty() || uiState.value.designation.isEmpty() || uiState.value.email.isEmpty() || uiState.value.phone.isEmpty() || uiState.value.profileImageUrl.isEmpty()) {
+        if(uiState.value.employeeName.isEmpty() || uiState.value.designation.isEmpty() || uiState.value.email.isEmpty() || uiState.value.phone.isEmpty()) {
             uiState.value = uiState.value.copy(error = "Please fill all the fields")
             return
         }
@@ -106,13 +107,18 @@ class AddEmployeeViewModel @Inject constructor(
             return
         }
 
-        if(!uiState.value.phone.matches(Regex("^[0-9]{10}$"))) {
+        if(!uiState.value.phone.isValidMobileNumber()) {
             uiState.value = uiState.value.copy(error = "Please enter a valid phone number")
             return
         }
 
         viewModelScope.launch {
             try {
+
+                if(uiState.value.profileImageUrl.isBlank()) {
+                    uiState.value = uiState.value.copy(profileImageUrl = "https://mastertondental.co.nz/wp-content/uploads/2022/12/team-profile-placeholder.jpg")
+                }
+
                 val employeeState = uiState.value
 
                 // Step 1: Insert the employee into the database
@@ -134,19 +140,6 @@ class AddEmployeeViewModel @Inject constructor(
                 } else {
                     Log.i("Employee ID","Employee ID: $generatedEmployeeId")
                 }
-                // Step 2: If a new team is being created, create the team with this employee as the team lead
-//                if (uiState.value.teamId == -1L) {  // Assuming -1 indicates a new team needs to be created
-//                    val newTeam = Team(teamName = teamState.value.teamName, teamLeadID = generatedEmployeeId)
-//                    val teamId = applicationUseCases.createTeam(newTeam)
-//                    val team = applicationUseCases.getTeamByName(teamState.value.teamName)
-//                    Log.i("Team being created","Team ID: ${team?.teamID ?: -1}, Team Name: ${team?.teamName}")
-//                    uiState.value = uiState.value.copy(teamId = teamId)
-//                    if(uiState.value.teamId != -1L) {
-//                        applicationUseCases.updateTeamIDInEmployee(employeeId = generatedEmployeeId, teamId = uiState.value.teamId)
-//                        Log.i("User updated","Team ID: $uiState.value.teamId")
-//                    }
-//                }
-
                 // create credentials for the employee
                 applicationUseCases.credentialUseCases.insertCredentials(employeeID = generatedEmployeeId, password = "password")
 

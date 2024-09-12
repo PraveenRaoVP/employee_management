@@ -1,6 +1,7 @@
 package android.caged.employeemanagement.presentation.employeedetails
 
 import android.caged.employeemanagement.domain.model.Employee
+import android.caged.employeemanagement.presentation.common.EmployeeDetail
 import android.graphics.drawable.Drawable
 import android.util.Log
 import android.widget.ImageView
@@ -36,63 +37,10 @@ fun EmployeeDetailsScreen(
     ) { innerPadding ->
         val topPadding = innerPadding.calculateTopPadding()
         employee?.let { emp ->
-            Column(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                AndroidView(
-                    factory = { context ->
-                        ImageView(context).apply {
-                            scaleType = ImageView.ScaleType.CENTER_CROP
-                            Glide.with(context)
-                                .load(emp.profileImageUrl)
-                                .circleCrop()
-                                .listener(object : RequestListener<Drawable> {
-                                    override fun onResourceReady(
-                                        resource: Drawable,
-                                        model: Any,
-                                        target: com.bumptech.glide.request.target.Target<Drawable>?,
-                                        dataSource: DataSource,
-                                        isFirstResource: Boolean
-                                    ): Boolean {
-                                        return false
-                                    }
-
-                                    override fun onLoadFailed(
-                                        e: GlideException?,
-                                        model: Any?,
-                                        target: Target<Drawable>,
-                                        isFirstResource: Boolean
-                                    ): Boolean {
-                                        Log.e("Glide", "Image load failed", e)
-                                        return false
-                                    }
-                                })
-                                .into(this)
-                        }
-                    },
-                    modifier = Modifier
-                        .height(128.dp)
-                        .border(
-                            width = 1.dp,
-                            color = Color.White,
-                            shape = RoundedCornerShape(50.dp)
-                        )
-                )
-
-                // Display the employee details
-                Text(text = "EmployeeID : ${emp.employeeId}")
-                Text(text = "Name: ${emp.employeeName}")
-                Text(text = "Designation: ${emp.designation}")
-                Text(text = "Position: ${emp.position}")
-                Text(text = "Team: $teamName")
-                Text(text = "Salary: ${emp.salary}")
-                Text(text = "Email: ${emp.email}")
-                Text(text = "Phone: ${emp.phone}")
-            }
+            EmployeeDetail(emp, teamName)
         } ?: run {
             Text(text = "Loading employee details...")
         }
     }
 }
+
