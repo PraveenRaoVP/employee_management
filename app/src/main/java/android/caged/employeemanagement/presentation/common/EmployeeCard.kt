@@ -4,6 +4,7 @@ import android.caged.employeemanagement.R
 import android.caged.employeemanagement.domain.model.Employee
 import android.caged.employeemanagement.domain.model.Position
 import android.caged.employeemanagement.domain.model.Team
+import android.content.res.Configuration
 import android.graphics.drawable.Drawable
 import android.os.Build
 import android.util.Log
@@ -129,33 +130,42 @@ fun EmployeeCard(
                 Spacer(modifier = Modifier.width(6.dp))
                 Text(
                     text = employee.designation,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodySmall.copy(color = colorResource(id = R.color.text_title)),
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     color = colorResource(id = R.color.body)
                 )
             }
         }
-        if(showDeleteButton) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = "Delete",
-                tint = Color.Red,
-                modifier = Modifier.clickable { onDeleteClick() },
-            )
-        }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(6.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            if(showDeleteButton) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = Color.Red,
+                    modifier = Modifier.clickable { onDeleteClick() },
+                )
+            }
 
-        if(employee.position == Position.ADMIN) {
-            Icon(imageVector = Icons.Default.Star, contentDescription = "Star Icon for Admin")
-        } else if(employee.position == Position.MANAGER) {
-            Icon(imageVector = Icons.Default.Face, contentDescription = "Face Icon for Manager")
-        } else {
-            Icon(imageVector = Icons.Default.Person, contentDescription = "Person Icon for Employee")
+            if(employee.position == Position.ADMIN) {
+                Icon(imageVector = Icons.Default.Star, contentDescription = "Star Icon for Admin")
+            } else if(employee.position == Position.MANAGER) {
+                Icon(imageVector = Icons.Default.Face, contentDescription = "Face Icon for Manager")
+            } else {
+                Icon(imageVector = Icons.Default.Person, contentDescription = "Person Icon for Employee")
+            }
         }
     }
 }
 
 @Preview(showBackground = true)
+@Preview(showBackground = true, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun EmployeeCardPreview() {
     EmployeeCard(

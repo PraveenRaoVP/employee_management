@@ -1,5 +1,6 @@
 package android.caged.employeemanagement.presentation.components
 
+import android.caged.employeemanagement.utils.ThemePreferenceManager
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
@@ -60,10 +61,9 @@ fun ActionBar(
 
 @Composable
 fun toolbarColor(): Color {
-//    return if (ThemePreferenceManager.isDarkTheme.value) {
-//        Color.White
-//    } else {
-//        Color.Black
-//    }
-    return Color.Black
+    return if (ThemePreferenceManager.isDarkTheme.value) {
+        Color.White
+    } else {
+        Color.Black
+    }
 }
